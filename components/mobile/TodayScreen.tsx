@@ -4,6 +4,8 @@ import { useMobileData } from '../../contexts/MobileDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Clock, MapPin, Briefcase, Coffee } from 'lucide-react';
 import LoadingSpinner from '../LoadingSpinner';
+import LanguageSwitcher from '../LanguageSwitcher';
+import ThemeToggle from '../ThemeToggle';
 
 const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 
@@ -23,9 +25,15 @@ const TodayScreen: React.FC = () => {
 
     return (
         <div className="p-4 md:p-6">
-            <header className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('mobile.greeting', { name: employee?.name.split(' ')[0] })}</h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+            <header className="mb-6 flex justify-between items-start">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('mobile.greeting', { name: employee?.name.split(' ')[0] })}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                </div>
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                    <LanguageSwitcher />
+                    <ThemeToggle />
+                </div>
             </header>
 
             <div className="bg-white dark:bg-blue-night-900 p-5 rounded-xl shadow-md">

@@ -3,6 +3,8 @@ import { useMobileAuth } from '../../contexts/MobileAuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import Avatar from '../Avatar';
 import { LogOut, Mail, Phone, User } from 'lucide-react';
+import LanguageSwitcher from '../LanguageSwitcher';
+import ThemeToggle from '../ThemeToggle';
 
 const InfoRow: React.FC<{ icon: React.ReactNode, label: string, value: string | undefined }> = ({ icon, label, value }) => (
     <div className="flex items-center p-3">
@@ -22,6 +24,10 @@ const ProfileScreen: React.FC = () => {
 
     return (
         <div className="flex flex-col h-full relative">
+            <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+                <LanguageSwitcher />
+                <ThemeToggle />
+            </div>
              <header className="p-4 md:p-6 text-center pt-8">
                  <Avatar name={employee.name} src={employee.avatarUrl} className="w-24 h-24 rounded-full mx-auto" />
                  <h2 className="mt-4 text-xl font-bold text-slate-800 dark:text-slate-100">{employee.name}</h2>

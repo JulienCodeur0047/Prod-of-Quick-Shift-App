@@ -3,6 +3,8 @@ import { useMobileData } from '../../contexts/MobileDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Shift } from '../../types';
 import LoadingSpinner from '../LoadingSpinner';
+import LanguageSwitcher from '../LanguageSwitcher';
+import ThemeToggle from '../ThemeToggle';
 
 const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 
@@ -65,7 +67,13 @@ const ScheduleScreen: React.FC = () => {
 
     return (
         <div className="p-4 md:p-6">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">{t('mobile.upcomingShifts')}</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('mobile.upcomingShifts')}</h1>
+                <div className="flex items-center space-x-2">
+                    <LanguageSwitcher />
+                    <ThemeToggle />
+                </div>
+            </div>
             
             <div className="space-y-6">
                 <div>

@@ -2,7 +2,6 @@ import React from 'react';
 import { useMobileAuth } from '../../contexts/MobileAuthContext';
 import MobileLogin from './MobileLogin';
 import MobileLayout from './MobileLayout';
-import FloatingControls from './FloatingControls';
 
 const MobileApp: React.FC = () => {
     const { employee, isLoading } = useMobileAuth();
@@ -14,7 +13,6 @@ const MobileApp: React.FC = () => {
     return (
         <div className="bg-slate-100 dark:bg-blue-night-950 min-h-screen">
             {employee ? <MobileLayout /> : <MobileLogin />}
-            <FloatingControls />
         </div>
     );
 };

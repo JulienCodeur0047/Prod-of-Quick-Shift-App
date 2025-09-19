@@ -3,6 +3,8 @@ import { useMobileData } from '../../contexts/MobileDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Loader2, Send } from 'lucide-react';
 import Modal from '../Modal';
+import LanguageSwitcher from '../LanguageSwitcher';
+import ThemeToggle from '../ThemeToggle';
 
 const toInputDateString = (date: Date) => date.toISOString().split('T')[0];
 
@@ -70,7 +72,13 @@ const RequestsScreen: React.FC = () => {
 
     return (
         <div className="p-4 md:p-6">
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">{t('mobile.makeRequest')}</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t('mobile.makeRequest')}</h1>
+                <div className="flex items-center space-x-2">
+                    <LanguageSwitcher />
+                    <ThemeToggle />
+                </div>
+            </div>
 
             <div className="mb-4 border-b border-slate-200 dark:border-slate-800">
                 <nav className="-mb-px flex space-x-4" aria-label="Tabs">

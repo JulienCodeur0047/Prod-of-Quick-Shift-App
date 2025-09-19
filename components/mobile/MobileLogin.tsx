@@ -3,6 +3,8 @@ import { useMobileAuth } from '../../contexts/MobileAuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import Logo from '../Logo';
 import { Loader2 } from 'lucide-react';
+import LanguageSwitcher from '../LanguageSwitcher';
+import ThemeToggle from '../ThemeToggle';
 
 const MobileLogin: React.FC = () => {
     const { login } = useMobileAuth();
@@ -24,7 +26,11 @@ const MobileLogin: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-100 dark:bg-blue-night-950">
+        <div className="relative flex flex-col items-center justify-center min-h-screen p-4 bg-slate-100 dark:bg-blue-night-950">
+            <div className="absolute top-4 right-4 flex items-center space-x-2">
+                <LanguageSwitcher />
+                <ThemeToggle />
+            </div>
             <div className="w-full max-w-sm mx-auto text-center">
                 <Logo className="w-16 h-16 mx-auto text-blue-600 dark:text-blue-400" />
                 <h1 className="mt-4 text-2xl font-bold text-slate-800 dark:text-slate-100">{t('mobile.loginTitle')}</h1>
