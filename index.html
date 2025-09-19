@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick Shift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'blue-night': {
+                '50': '#f8f9fa',
+                '100': '#e9ecef',
+                '200': '#dee2e6',
+                '300': '#ced4da',
+                '400': '#adb5bd',
+                '500': '#6c757d',
+                '600': '#495057',
+                '700': '#343a40',
+                '800': '#212529',
+                '900': '#181b1e',
+                '950': '#0d0f10'
+              },
+            },
+            keyframes: {
+              'drag-shift': {
+                '0%, 100%': { transform: 'translate(0, 0)' },
+                '40%, 60%': { transform: 'translate(108px, 5px) scale(1.05)' },
+              },
+              'fill-progress': {
+                '0%': { width: '10%' },
+                '100%': { width: '75%' },
+              },
+               'pulse-light': {
+                '0%, 100%': { opacity: 1 },
+                '50%': { opacity: 0.7 },
+              },
+              'slide-in-up': {
+                  '0%': { transform: 'translateY(20px)', opacity: '0' },
+                  '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              'fade-in-backdrop': {
+                '0%': { backgroundColor: 'rgba(0, 0, 0, 0)' },
+                '100%': { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+              },
+              'modal-content-slide-in': {
+                '0%': { transform: 'translateY(24px) scale(0.95)', opacity: '0' },
+                '100%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+              },
+            },
+            animation: {
+                'drag-shift': 'drag-shift 5s ease-in-out infinite',
+                'fill-progress': 'fill-progress 2s ease-out forwards',
+                'pulse-light': 'pulse-light 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'slide-in-up': 'slide-in-up 0.6s ease-out forwards',
+                'fade-in-backdrop': 'fade-in-backdrop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                'modal-content-slide-in': 'modal-content-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.542.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "firebase/compat/app": "https://aistudiocdn.com/firebase@^12.2.1/compat/app",
+    "firebase/compat/auth": "https://aistudiocdn.com/firebase@^12.2.1/compat/auth",
+    "firebase/compat/firestore": "https://aistudiocdn.com/firebase@^12.2.1/compat/firestore",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.2.1/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
