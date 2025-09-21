@@ -197,38 +197,49 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         if (isLocked) return;
         const shiftId = e.dataTransfer.getData('shiftId');
         if (!shiftId) return;
-
+    
         const originalShift = shifts.find(s => s.id === shiftId);
-        if(!originalShift || !originalShift.employeeId) return; // Cannot drop open shifts
-
-        // Conflict check
-        const hasAbsenceConflict = absences.some(absence => 
-            absence.employeeId === originalShift.employeeId && isDateBetween(day, absence.startDate, absence.endDate)
-        );
-         const holidayOnDay = specialDays.find(sd => {
+        if (!originalShift) return;
+    
+        // --- Conflict Checks ---
+        const holidayOnDay = specialDays.find(sd => {
             const type = specialDayTypes.find(sdt => sdt.id === sd.typeId);
             return isSameDay(sd.date, day) && type?.isHoliday && sd.coverage === 'all-day';
         });
-
-        if (hasAbsenceConflict) {
-            alert("Cannot move shift to a day where the employee is absent.");
-        } else if (holidayOnDay) {
+    
+        if (holidayOnDay) {
             alert("Cannot move shift to a holiday.");
-        } else {
-             setUnsentChanges(prev => new Set(prev).add(shiftId));
-             const updatedShifts = shifts.map(shift => {
-                if (shift.id === shiftId) {
-                    const duration = shift.endTime.getTime() - shift.startTime.getTime();
-                    const newStartTime = new Date(day);
-                    newStartTime.setHours(shift.startTime.getHours(), shift.startTime.getMinutes(), shift.startTime.getSeconds(), shift.startTime.getMilliseconds());
-                    const newEndTime = new Date(newStartTime.getTime() + duration);
-                    return { ...shift, startTime: newStartTime, endTime: newEndTime };
-                }
-                return shift;
-            });
-            onUpdateShifts(updatedShifts);
+            setDragOverDate(null);
+            setDraggedShiftId(null);
+            return;
         }
-
+    
+        if (originalShift.employeeId) {
+            const hasAbsenceConflict = absences.some(absence => 
+                absence.employeeId === originalShift.employeeId && isDateBetween(day, absence.startDate, absence.endDate)
+            );
+            if (hasAbsenceConflict) {
+                alert("Cannot move shift to a day where the employee is absent.");
+                setDragOverDate(null);
+                setDraggedShiftId(null);
+                return;
+            }
+        }
+    
+        // --- Update Shift ---
+        setUnsentChanges(prev => new Set(prev).add(shiftId));
+        const updatedShifts = shifts.map(shift => {
+            if (shift.id === shiftId) {
+                const duration = shift.endTime.getTime() - shift.startTime.getTime();
+                const newStartTime = new Date(day);
+                newStartTime.setHours(shift.startTime.getHours(), shift.startTime.getMinutes(), shift.startTime.getSeconds(), shift.startTime.getMilliseconds());
+                const newEndTime = new Date(newStartTime.getTime() + duration);
+                return { ...shift, startTime: newStartTime, endTime: newEndTime };
+            }
+            return shift;
+        });
+        onUpdateShifts(updatedShifts);
+    
         setDragOverDate(null);
         setDraggedShiftId(null);
     };
@@ -513,7 +524,12 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                             <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 text-center border-b dark:border-blue-night-800 pb-1">{t('schedule.openShifts')}</h4>
                                             <div className="space-y-2 pt-1">
                                                 {openShiftsForDay.map(shift => (
-                                                    <ShiftCard key={shift.id} shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={() => {}} zoomLevel={zoomLevel} isLocked={isLocked} />
+                                                    <div
+                                                        key={shift.id}
+                                                        className={`transition-opacity duration-300 ${draggedShiftId === shift.id ? 'opacity-30' : 'opacity-100'}`}
+                                                    >
+                                                        <ShiftCard shift={shift} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={() => {}} onDragStart={handleDragStart} zoomLevel={zoomLevel} isLocked={isLocked} />
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>

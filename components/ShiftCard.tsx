@@ -65,14 +65,20 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
     if (zoomLevel === 0) {
         const title = employee ? `${employee.name} | ${shiftTimeTitle}` : `Open Shift | ${shiftTimeTitle}`;
         return (
-            <div onClick={handleCardClick} title={title} className="transition-all duration-300 ease-in-out">
+            <div 
+                draggable={!isLocked}
+                onDragStart={(e) => onDragStart(e, shift.id)}
+                onClick={handleCardClick} 
+                title={title} 
+                className={`transition-all duration-300 ease-in-out ${isLocked ? 'cursor-default' : 'cursor-grab'}`}
+            >
                 {employee ? (
-                    <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}>
+                    <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden`}>
                         <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
                         <span className="text-[10px] font-mono truncate">{shiftTimeTitle}</span>
                     </div>
                 ) : (
-                    <div className={`h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5 ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}>
+                    <div className={`h-6 rounded border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center px-1.5`}>
                         <UserPlus size={12} className="text-gray-500 dark:text-gray-400" />
                     </div>
                 )}
@@ -86,8 +92,10 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
     if (!employee) {
         return (
              <div
+                draggable={!isSelectionModeActive && !isLocked}
+                onDragStart={(e) => onDragStart(e, shift.id)}
                 onClick={handleCardClick}
-                className={`rounded-lg mb-2 border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`rounded-lg mb-2 border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
              >
                 <div className="flex items-center mb-1">
                     <div className="w-6 h-6 rounded-full mr-2 bg-gray-300 dark:bg-blue-night-700 flex items-center justify-center flex-shrink-0">
@@ -133,7 +141,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
             draggable={!isSelectionModeActive && !isLocked}
             onDragStart={(e) => onDragStart(e, shift.id)}
             onClick={handleCardClick}
-            className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
+            className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
         >
             {isSelectionModeActive && (
                 <input 
