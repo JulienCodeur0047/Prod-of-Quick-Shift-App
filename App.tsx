@@ -105,7 +105,7 @@ export default function App() {
     switch (view) {
       case 'dashboard':
         return permissions.canAccessDashboard
-          ? <Dashboard employees={employees} shifts={shifts} absences={absences} absenceTypes={absenceTypes} roles={roles} setView={setView} />
+          ? <Dashboard employees={employees} shifts={shifts} absences={absences} absenceTypes={absenceTypes} roles={roles} departments={departments} setView={setView} />
           : <div className="text-center p-8 bg-white dark:bg-blue-night-900 rounded-lg shadow-md max-w-lg mx-auto">
               <Gem size={48} className="mx-auto text-yellow-500 dark:text-blue-night-400 mb-4" />
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{t('upgrade.dashboardTitle')}</h2>

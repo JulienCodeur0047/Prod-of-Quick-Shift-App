@@ -28,7 +28,22 @@
     "openShifts": "Shifts ouverts",
     "fulfillmentRate": "Taux de couverture",
     "turnoverRate": "Rotation du personnel",
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt disponible",
+    "hourAnalysisTitle": "Analyse des Heures du Personnel",
+    "timeRange": "Période",
+    "last1Week": "Dernière semaine",
+    "last2Weeks": "2 dernières semaines",
+    "last3Weeks": "3 dernières semaines",
+    "last4Weeks": "4 dernières semaines",
+    "filterByRole": "Filtrer par Rôle",
+    "filterByDepartment": "Filtrer par Département",
+    "totalHoursFiltered": "Total des Heures",
+    "hoursByStaff": "Heures par Membre",
+    "noDataForFilters": "Aucune donnée pour les filtres sélectionnés.",
+    "exportCSV": "Exporter en CSV",
+    "csvHeaderStaff": "Membre du Personnel",
+    "csvHeaderHours": "Heures Totales",
+    "csvTotal": "Total"
   },
   "schedule": {
     "week": "Semaine",

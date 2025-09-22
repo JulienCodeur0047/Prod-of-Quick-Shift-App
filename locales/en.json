@@ -28,7 +28,22 @@
     "openShifts": "Open Shifts",
     "fulfillmentRate": "Fulfillment Rate",
     "turnoverRate": "Staff Turnover",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "hourAnalysisTitle": "Staff Hour Analysis",
+    "timeRange": "Time Range",
+    "last1Week": "Last Week",
+    "last2Weeks": "Last 2 Weeks",
+    "last3Weeks": "Last 3 Weeks",
+    "last4Weeks": "Last 4 Weeks",
+    "filterByRole": "Filter by Role",
+    "filterByDepartment": "Filter by Department",
+    "totalHoursFiltered": "Total Hours",
+    "hoursByStaff": "Hours by Staff Member",
+    "noDataForFilters": "No data available for the selected filters.",
+    "exportCSV": "Export as CSV",
+    "csvHeaderStaff": "Staff Member",
+    "csvHeaderHours": "Total Hours",
+    "csvTotal": "Total"
   },
   "schedule": {
     "week": "Week",

@@ -478,11 +478,13 @@ export const apiCreateItem = async <T extends {id: string}>(collectionName: stri
     return docWithId(newDoc);
 };
 
-export const apiUpdateItem = <T>(collectionName: string, id: string, data: T) => {
+export const apiUpdateItem = <T extends { id: string }>(collectionName: string, id: string, data: T) => {
     if (IS_FIREBASE_DISABLED) return Promise.reject(new Error("Firebase is disabled. Cannot update item."));
     // Fix: Use v8 firestore syntax for updating documents.
     const docRef = db.collection(collectionName).doc(id);
-    return docRef.update(data as any);
+    // Create a new object for the update, excluding the 'id' field to ensure a clean update payload.
+    const { id: docId, ...dataToUpdate } = data;
+    return docRef.update(dataToUpdate);
 };
 
 export const apiDeleteItem = (collectionName: string, itemId: string) => {
