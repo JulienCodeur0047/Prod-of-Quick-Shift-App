@@ -173,6 +173,8 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             locationId: formData.locationId || undefined,
             departmentId: formData.departmentId || undefined,
             companyId: user!.companyId,
+            actualStartTime: shift?.actualStartTime,
+            actualEndTime: shift?.actualEndTime,
         };
         onSave(updatedShift);
     };
@@ -200,6 +202,12 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             </div>
         </div>
     );
+    
+    const formatDateTime = (date: Date) => {
+        return new Date(date).toLocaleString(undefined, {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    };
 
     return (
         <Modal isOpen={true} onClose={onCancel} title={title} footer={modalFooter}>
@@ -263,6 +271,31 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                         <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} className="input-style mt-1" />
                     </div>
                 </div>
+
+                {shift?.actualStartTime && (
+                     <div className="pt-4 mt-4 border-t dark:border-slate-800">
+                        <h4 className="label-style">{t('modals.timeClockData')}</h4>
+                        <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg space-y-2">
+                             <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('modals.clockedIn')}</label>
+                                    <input type="text" readOnly value={formatDateTime(shift.actualStartTime)} className="input-style mt-1 !bg-slate-200 dark:!bg-slate-700" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('modals.clockedOut')}</label>
+                                    <input type="text" readOnly value={shift.actualEndTime ? formatDateTime(shift.actualEndTime) : '---'} className="input-style mt-1 !bg-slate-200 dark:!bg-slate-700" />
+                                </div>
+                            </div>
+                            {shift.actualEndTime && (
+                                <p className="text-xs text-green-600 dark:text-green-400 flex items-center font-semibold">
+                                    <CheckCircle size={14} className="mr-1.5" /> {t('modals.shiftCompleted')}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+
                  <style>{`
                     .label-style { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; line-height: 1.25rem; font-weight: 500; color: #475569; }
                     .dark .label-style { color: #cbd5e1; }

@@ -58,6 +58,8 @@ export interface Shift {
   locationId?: string;
   departmentId?: string;
   companyId: string;
+  actualStartTime?: Date;
+  actualEndTime?: Date;
 }
 
 export interface Absence {

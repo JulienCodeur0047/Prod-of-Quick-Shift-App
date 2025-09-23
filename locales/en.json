@@ -42,8 +42,10 @@
     "noDataForFilters": "No data available for the selected filters.",
     "exportCSV": "Export as CSV",
     "csvHeaderStaff": "Staff Member",
-    "csvHeaderHours": "Total Hours",
-    "csvTotal": "Total"
+    "csvHeaderHours": "Scheduled Hours",
+    "csvHeaderActualHours": "Actual Hours (Clocked)",
+    "csvTotal": "Total",
+    "hourAnalysisProPlusNote": "Note: Hour calculations are based on actual clocked in/out times from the mobile app."
   },
   "schedule": {
     "week": "Week",
@@ -455,7 +457,11 @@
     "errorAbsenceConflict": "This staff member has a scheduled '{absenceName}' during this time.",
     "errorUnavailable": "This staff member is unavailable at the selected time.",
     "preferredTime": "This is a preferred time for this staff member.",
-    "employeeUnavailable": "Staff member is unavailable at this time."
+    "employeeUnavailable": "Staff member is unavailable at this time.",
+    "timeClockData": "Time Clock Data",
+    "clockedIn": "Clocked In",
+    "clockedOut": "Clocked Out",
+    "shiftCompleted": "Shift Completed"
   },
   "gender": {
     "male": "Male",
@@ -573,6 +579,14 @@
     "requestSuccessBody": "Your request has been sent to your manager for review.",
     "errorTitle": "Error",
     "errorBody": "An unexpected error occurred. Please try again later.",
-    "close": "Close"
+    "close": "Close",
+    "timeClockTitle": "Time Clock",
+    "clockIn": "Clock In",
+    "clockOut": "Clock Out",
+    "canClockInAt": "Clock-in available at {time}",
+    "clockedInAt": "Clocked in at {time}",
+    "clockedOut": "Shift Complete",
+    "clockInTime": "In",
+    "clockOutTime": "Out"
   }
 }

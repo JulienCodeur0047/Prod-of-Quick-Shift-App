@@ -42,8 +42,10 @@
     "noDataForFilters": "Aucune donnée pour les filtres sélectionnés.",
     "exportCSV": "Exporter en CSV",
     "csvHeaderStaff": "Membre du Personnel",
-    "csvHeaderHours": "Heures Totales",
-    "csvTotal": "Total"
+    "csvHeaderHours": "Heures Planifiées",
+    "csvHeaderActualHours": "Heures Réelles (Pointées)",
+    "csvTotal": "Total",
+    "hourAnalysisProPlusNote": "Note : Les calculs d'heures sont basés sur les temps de pointage réels de l'application mobile."
   },
   "schedule": {
     "week": "Semaine",
@@ -455,7 +457,11 @@
     "errorAbsenceConflict": "Ce membre du personnel a une '{absenceName}' planifiée pendant cette période.",
     "errorUnavailable": "Ce membre du personnel n'est pas disponible à l'heure sélectionnée.",
     "preferredTime": "Ceci est un horaire préféré pour ce membre du personnel.",
-    "employeeUnavailable": "Le membre du personnel n'est pas disponible à cette heure."
+    "employeeUnavailable": "Le membre du personnel n'est pas disponible à cette heure.",
+    "timeClockData": "Données de Pointage",
+    "clockedIn": "Pointage Arrivée",
+    "clockedOut": "Pointage Départ",
+    "shiftCompleted": "Shift Terminé"
   },
   "gender": {
     "male": "Homme",
@@ -573,6 +579,14 @@
     "requestSuccessBody": "Votre demande a été envoyée à votre manager pour examen.",
     "errorTitle": "Erreur",
     "errorBody": "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "timeClockTitle": "Pointage",
+    "clockIn": "Pointer l'arrivée",
+    "clockOut": "Pointer le départ",
+    "canClockInAt": "Pointage disponible à {time}",
+    "clockedInAt": "Arrivée pointée à {time}",
+    "clockedOut": "Service terminé",
+    "clockInTime": "Arrivée",
+    "clockOutTime": "Départ"
   }
 }

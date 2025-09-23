@@ -10,6 +10,7 @@ interface MobileDataContextType {
     error: string | null;
     refetchData: () => void;
     submitRequest: (data: any) => Promise<boolean>;
+    updateShift: (shift: Shift) => Promise<void>;
 }
 
 const MobileDataContext = createContext<MobileDataContextType | undefined>(undefined);
@@ -57,6 +58,25 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
             return false;
         }
     };
+
+    const updateShift = async (updatedShift: Shift) => {
+        if (!employee) return;
+        const originalShifts = [...shifts];
+
+        // Optimistic update
+        setShifts(prevShifts => 
+            prevShifts.map(s => s.id === updatedShift.id ? updatedShift : s)
+        );
+
+        try {
+            await api.apiUpdateItem('shifts', updatedShift.id, updatedShift);
+        } catch (error) {
+            console.error("Failed to update shift:", error);
+            // Revert on failure
+            setShifts(originalShifts);
+            setError("Failed to update your shift. Please try again.");
+        }
+    };
     
     const value = {
         shifts,
@@ -64,7 +84,8 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
         isLoading,
         error,
         refetchData: fetchData,
-        submitRequest
+        submitRequest,
+        updateShift
     };
 
     return (

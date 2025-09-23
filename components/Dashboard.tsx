@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Users, Clock, Hourglass, UserMinus, X, UserPlus, PieChart, TrendingDown, Calendar, ArrowRight, UserRound, Download } from 'lucide-react';
+import { Users, Clock, Hourglass, UserMinus, X, UserPlus, PieChart, TrendingDown, Calendar, ArrowRight, UserRound, Download, Info } from 'lucide-react';
 import { Shift, Employee, Absence, AbsenceType, Role, View, Department } from '../types';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -106,6 +106,8 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
     };
 
     const cumulativeHoursData = useMemo(() => {
+        const isProPlus = user?.plan === 'Pro Plus';
+
         const today = new Date();
         const startDate = new Date();
         startDate.setDate(today.getDate() - (hourAnalysisFilters.weeks * 7));
@@ -113,7 +115,11 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
 
         const employeeMap = new Map(employees.map(e => [e.id, e]));
 
-        const shiftsInRange = shifts.filter(s => s.employeeId && s.startTime >= startDate && s.startTime <= today);
+        const shiftsInRange = shifts.filter(s => {
+            // For Pro Plus, the relevant date is when the shift was actually worked
+            const shiftDate = isProPlus && s.actualStartTime ? new Date(s.actualStartTime) : s.startTime;
+            return s.employeeId && shiftDate >= startDate && shiftDate <= today;
+        });
         
         const shiftsAfterDeptFilter = hourAnalysisFilters.departmentIds.length > 0
             ? shiftsInRange.filter(s => s.departmentId && hourAnalysisFilters.departmentIds.includes(s.departmentId))
@@ -126,10 +132,17 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
               })
             : shiftsAfterDeptFilter;
 
+        // Filter shifts for hour calculation based on plan
+        const relevantShifts = isProPlus 
+            ? shiftsAfterRoleFilter.filter(s => s.actualStartTime && s.actualEndTime) // Only completed, clocked shifts
+            : shiftsAfterRoleFilter; // All scheduled shifts
+        
         const hoursByEmployee: { [employeeId: string]: { name: string; hours: number } } = {};
         
-        const totalHours = shiftsAfterRoleFilter.reduce((acc, shift) => {
-            const duration = (shift.endTime.getTime() - shift.startTime.getTime()) / 3600000;
+        const totalHours = relevantShifts.reduce((acc, shift) => {
+            const duration = isProPlus
+                ? (new Date(shift.actualEndTime!).getTime() - new Date(shift.actualStartTime!).getTime()) / 3600000
+                : (shift.endTime.getTime() - shift.startTime.getTime()) / 3600000;
             
             if (shift.employeeId) {
                 if (!hoursByEmployee[shift.employeeId]) {
@@ -145,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
         const employeeHoursList = Object.values(hoursByEmployee).sort((a, b) => b.hours - a.hours);
 
         return { totalHours, employeeHoursList };
-    }, [shifts, employees, hourAnalysisFilters]);
+    }, [shifts, employees, hourAnalysisFilters, user?.plan]);
     
     const roleOptions = useMemo(() => roles.map(r => ({id: r.name, name: r.name})), [roles]);
     const departmentOptions = useMemo(() => departments.map(d => ({id: d.id, name: d.name})), [departments]);
@@ -154,7 +167,10 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
         if (cumulativeHoursData.employeeHoursList.length === 0) return;
         const { employeeHoursList, totalHours } = cumulativeHoursData;
 
-        const headers = [t('dashboard.csvHeaderStaff'), t('dashboard.csvHeaderHours')];
+        const isProPlus = user?.plan === 'Pro Plus';
+        const hoursHeader = isProPlus ? t('dashboard.csvHeaderActualHours') : t('dashboard.csvHeaderHours');
+        const headers = [t('dashboard.csvHeaderStaff'), hoursHeader];
+
         let csvContent = headers.join(',') + '\n';
     
         employeeHoursList.forEach(emp => {
@@ -331,6 +347,14 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
                             </button>
                         </div>
                     </div>
+                    
+                    {user?.plan === 'Pro Plus' && (
+                        <div className="text-center text-xs text-slate-500 dark:text-slate-400 mb-4 -mt-2 italic flex items-center justify-center">
+                           <Info size={12} className="mr-1.5 flex-shrink-0" />
+                           {t('dashboard.hourAnalysisProPlusNote')}
+                        </div>
+                    )}
+
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="flex flex-col items-center justify-center p-6 bg-slate-100 dark:bg-slate-800 rounded-xl text-center">
