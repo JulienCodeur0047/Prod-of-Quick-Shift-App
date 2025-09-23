@@ -32,6 +32,8 @@ export default function App() {
     handleDeleteSpecialDay, handleValidateRequest, handleRefuseRequest, 
     handleFollowUpComplaint, handleSaveEmployeeAvailability, handleImportEmployees,
     handleRegenerateAccessCode,
+    // FIX: Destructure handleBulkAddShifts from useData hook.
+    handleBulkAddShifts,
     isLoading: isDataLoading
   } = useData();
 
@@ -119,6 +121,8 @@ export default function App() {
                     employeeAvailabilities={employeeAvailabilities} onSaveShift={handleSaveShift} onDeleteShift={handleDeleteShift}
                     onDeleteMultipleShifts={handleDeleteMultipleShifts} onUpdateShifts={handleUpdateShifts} onSaveAbsence={handleSaveAbsence}
                     onDeleteAbsence={handleDeleteAbsence} onSaveSpecialDay={handleSaveSpecialDay} onDeleteSpecialDay={handleDeleteSpecialDay}
+                    // FIX: Pass the required 'onBulkAddShifts' prop to the ScheduleCalendar component.
+                    onBulkAddShifts={handleBulkAddShifts}
                 />;
       case 'employees':
         return <EmployeeList 

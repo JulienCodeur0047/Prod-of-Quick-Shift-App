@@ -56,6 +56,7 @@ interface DataHandlerContextType {
     handleFollowUpComplaint: (messageId: string) => Promise<void>;
     handleSaveEmployeeAvailability: (employeeId: string, availability: WeeklyAvailability) => Promise<void>;
     handleImportEmployees: (importedData: Array<Omit<Employee, 'id' | 'avatarUrl' | 'companyId'>>) => Promise<void>;
+    handleBulkAddShifts: (newShifts: Array<Omit<Shift, 'id' | 'companyId'>>) => Promise<void>;
 }
 
 interface DataContextType extends DataState, DataHandlerContextType {}
@@ -320,6 +321,19 @@ export const DataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
             alert('No new employees to import.');
         }
     };
+    
+    const handleBulkAddShifts = async (newShiftsData: Array<Omit<Shift, 'id' | 'companyId'>>) => {
+        if (!user?.companyId) return;
+
+        try {
+            const createdShifts = await api.apiBulkCreateShifts(newShiftsData, user.companyId);
+            dispatch({ type: 'SET_DATA', payload: { shifts: [...state.shifts, ...createdShifts] } });
+        } catch (error) {
+            console.error("Failed to bulk add shifts:", error);
+            alert("An error occurred while creating shifts. Please try again.");
+            // No need to revert since we aren't doing an optimistic update here
+        }
+    };
 
 
     const value: DataContextType = {
@@ -355,6 +369,7 @@ export const DataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         handleFollowUpComplaint,
         handleSaveEmployeeAvailability,
         handleImportEmployees,
+        handleBulkAddShifts,
     };
 
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

@@ -9,10 +9,11 @@ import CalendarFilter from './CalendarFilter';
 import SpecialDayEditor from './SpecialDayEditor';
 import ExportModal from './ExportModal';
 import FeatureTour, { TourStep } from './FeatureTour';
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock, Send, Loader2, Lightbulb } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock, Send, Loader2, Lightbulb, Repeat } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import BulkShiftEditor from './BulkShiftEditor';
 
 const getWeekDays = (date: Date): Date[] => {
     const startOfWeek = new Date(date);
@@ -84,6 +85,7 @@ interface ScheduleCalendarProps {
     onDeleteAbsence: (absenceId: string) => void;
     onSaveSpecialDay: (specialDay: SpecialDay) => void;
     onDeleteSpecialDay: (specialDayId: string) => void;
+    onBulkAddShifts: (newShifts: Array<Omit<Shift, 'id' | 'companyId'>>) => Promise<void>;
 }
 
 const scheduleTourSteps: TourStep[] = [
@@ -100,7 +102,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const { 
         employees, roles, shifts, locations, departments, absences, absenceTypes, specialDays, specialDayTypes,
         employeeAvailabilities, onSaveShift, onDeleteShift, onDeleteMultipleShifts, onUpdateShifts, onSaveAbsence, onDeleteAbsence,
-        onSaveSpecialDay, onDeleteSpecialDay
+        onSaveSpecialDay, onDeleteSpecialDay, onBulkAddShifts
     } = props;
     
     const { user, permissions } = useAuth();
@@ -118,6 +120,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const [absenceEditorState, setAbsenceEditorState] = useState<{isOpen: boolean, absence: Absence | null}>({isOpen: false, absence: null});
     const [specialDayEditorState, setSpecialDayEditorState] = useState<{isOpen: boolean, specialDay: SpecialDay | null, date: Date | null}>({isOpen: false, specialDay: null, date: null});
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [isBulkAddModalOpen, setIsBulkAddModalOpen] = useState(false);
     const [dayDetailModal, setDayDetailModal] = useState<{isOpen: boolean, date: Date | null}>({isOpen: false, date: null});
 
     const [isSelectionModeActive, setIsSelectionModeActive] = useState(false);
@@ -188,7 +191,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         if (view === 'week') {
             setCurrentDate(d => new Date(d.setDate(d.getDate() + 7)));
         } else {
-            setCurrentDate(d => new Date(d.setMonth(d.getMonth() - 1)));
+            setCurrentDate(d => new Date(d.setMonth(d.getMonth() + 1)));
         }
     };
     
@@ -228,17 +231,13 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     
         // --- Update Shift ---
         setUnsentChanges(prev => new Set(prev).add(shiftId));
-        const updatedShifts = shifts.map(shift => {
-            if (shift.id === shiftId) {
-                const duration = shift.endTime.getTime() - shift.startTime.getTime();
-                const newStartTime = new Date(day);
-                newStartTime.setHours(shift.startTime.getHours(), shift.startTime.getMinutes(), shift.startTime.getSeconds(), shift.startTime.getMilliseconds());
-                const newEndTime = new Date(newStartTime.getTime() + duration);
-                return { ...shift, startTime: newStartTime, endTime: newEndTime };
-            }
-            return shift;
-        });
-        onUpdateShifts(updatedShifts);
+        const duration = originalShift.endTime.getTime() - originalShift.startTime.getTime();
+        const newStartTime = new Date(day);
+        newStartTime.setHours(originalShift.startTime.getHours(), originalShift.startTime.getMinutes(), originalShift.startTime.getSeconds(), originalShift.startTime.getMilliseconds());
+        const newEndTime = new Date(newStartTime.getTime() + duration);
+        const updatedShift = { ...originalShift, startTime: newStartTime, endTime: newEndTime };
+
+        onSaveShift(updatedShift);
     
         setDragOverDate(null);
         setDraggedShiftId(null);
@@ -429,6 +428,10 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
+                    </button>
+                    <button onClick={() => setIsBulkAddModalOpen(true)} disabled={isLocked} className="flex items-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <Repeat size={20} className="mr-2" />
+                        {t('schedule.bulkAdd')}
                     </button>
                     <button onClick={() => openAddShiftModal(new Date())} disabled={isLocked} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         <Plus size={20} className="mr-2" />
@@ -709,6 +712,18 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                 absenceTypes={absenceTypes}
                 specialDays={specialDays}
                 specialDayTypes={specialDayTypes}
+            />
+            <BulkShiftEditor
+                isOpen={isBulkAddModalOpen}
+                onClose={() => setIsBulkAddModalOpen(false)}
+                onBulkSave={onBulkAddShifts}
+                employees={employees}
+                locations={locations}
+                departments={departments}
+                allShifts={shifts}
+                allAbsences={absences}
+                allSpecialDays={specialDays}
+                allSpecialDayTypes={specialDayTypes}
             />
         </div>
     );

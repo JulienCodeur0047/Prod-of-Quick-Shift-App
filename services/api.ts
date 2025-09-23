@@ -534,3 +534,23 @@ export const apiBulkCreateEmployees = async (employees: Omit<Employee, 'id' | 'c
     await batch.commit();
     return newEmployeeDocs;
 };
+
+export const apiBulkCreateShifts = async (shifts: Array<Omit<Shift, 'id' | 'companyId'>>, companyId: string): Promise<Shift[]> => {
+    if (IS_FIREBASE_DISABLED) throw new Error("Firebase is disabled.");
+    
+    const batch = db.batch();
+    const shiftsCollection = db.collection('shifts');
+    const newDocRefs = shifts.map(() => shiftsCollection.doc());
+
+    shifts.forEach((shiftData, index) => {
+        const dataToSave = { ...shiftData, companyId };
+        batch.set(newDocRefs[index], dataToSave);
+    });
+
+    await batch.commit();
+
+    // After commit, fetch the newly created documents to get their final state (with server timestamps etc.)
+    const newDocsSnapshots = await Promise.all(newDocRefs.map(ref => ref.get()));
+    
+    return newDocsSnapshots.map(doc => docWithId(doc));
+};
