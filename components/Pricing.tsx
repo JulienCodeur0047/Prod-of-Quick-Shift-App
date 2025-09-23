@@ -17,7 +17,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
   const planDetails: { [key in Plan]: { key: string, isFeatured: boolean, featureCount: number } } = {
     'Gratuit': { key: 'freePlan', isFeatured: false, featureCount: 3 },
     'Pro': { key: 'proPlan', isFeatured: true, featureCount: 5 },
-    'Pro Plus': { key: 'proPlusPlan', isFeatured: false, featureCount: 7 },
+    'Pro Plus': { key: 'proPlusPlan', isFeatured: false, featureCount: 6 },
   };
 
   return (

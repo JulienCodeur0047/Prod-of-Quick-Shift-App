@@ -74,12 +74,7 @@
     "lock": "Verrouiller le planning pour empêcher les modifications",
     "unlock": "Déverrouiller le planning pour autoriser les modifications",
     "locked": "Verrouillé",
-    "unlocked": "Déverrouillé",
-    "unsentChangesTitle": "Modifications non envoyées",
-    "unsentChangesDesc": "Vous avez {count} shifts modifiés.",
-    "notifyEmployees": "Notifier le Personnel",
-    "sending": "Envoi en cours...",
-    "notificationSuccess": "Notifications envoyées avec succès pour {count} changements de shift."
+    "unlocked": "Déverrouillé"
   },
   "employees": {
     "title": "Personnel",
@@ -247,7 +242,7 @@
     "featureGrid4Title": "Rapports & Exportation",
     "featureGrid4Desc": "Générez et exportez des rapports de planning détaillés au format calendrier ou liste pour la paie et l'analyse.",
     "featureGrid5Title": "Notifications en Temps Réel",
-    "featureGrid5Desc": "Tenez votre équipe informée en envoyant des notifications instantanées sur les shifts nouveaux ou mis à jour. (Pro+)",
+    "featureGrid5Desc": "Le personnel est instantanément informé des changements d'horaire via l'application mobile, gardant tout le monde synchronisé sans délai. (Pro+)",
     "featureGrid6Title": "Accès Mobile",
     "featureGrid6Desc": "Le personnel peut consulter ses horaires et détails en déplacement grâce à un accès mobile dédié. (Pro+)",
     "feature1Title": "Glissez, déposez, c'est fait.",
@@ -256,6 +251,16 @@
     "feature2Desc": "Allez au-delà de la simple planification. Notre tableau de bord fournit des informations exploitables sur des indicateurs clés tels que les taux de couverture des shifts et le total des heures planifiées, vous aidant à optimiser la couverture du personnel et à prendre des décisions opérationnelles plus intelligentes.",
     "feature3Title": "Votre équipe, centralisée.",
     "feature3Desc": "Gérez tous les profils du personnel, les rôles et les disponibilités en un seul endroit. Gardez votre liste de personnel organisée et facilement accessible pour des affectations plus rapides.",
+    "mobile": {
+      "title": "Votre Planning, dans Votre Poche",
+      "description": "Donnez à votre personnel les moyens d'agir avec l'application mobile Pro Plus. Ils bénéficient d'un accès instantané à leurs horaires, peuvent pointer avec précision et communiquer sans effort.",
+      "feature1Title": "Pointage Précis",
+      "feature1Desc": "Permettez au personnel de pointer leurs arrivées et départs directement depuis leur téléphone, garantissant la précision de la paie et des registres de présence clairs.",
+      "feature2Title": "Accès Instantané au Planning",
+      "feature2Desc": "Les plannings sont toujours à jour et accessibles à tout moment et en tout lieu, réduisant les absences et la confusion.",
+      "feature3Title": "Demandes Simplifiées",
+      "feature3Desc": "Fluidifiez la communication en permettant au personnel de soumettre des demandes d'absence ou des messages directement via l'application."
+    },
     "testimonialsTitle": "Approuvé par les entreprises en croissance",
     "testimonialsSubtitle": "Les gérants et propriétaires économisent des heures chaque semaine et réduisent les maux de tête liés à la planification avec Quick Shift.",
     "testimonial1Quote": "Quick Shift a changé la donne. Je passais des heures sur des tableurs. Maintenant, je crée le planning de la semaine en 15 minutes. Le glisser-déposer est tout simplement génial.",
@@ -299,10 +304,9 @@
     "proPlusPlanFeature1": "Jusqu'à 300 membres du personnel",
     "proPlusPlanFeature2": "Toutes les fonctionnalités Pro incluses",
     "proPlusPlanFeature3": "Support prioritaire",
-    "proPlusPlanFeature4": "Notification par e-mail",
-    "proPlusPlanFeature5": "Exportation avancée",
-    "proPlusPlanFeature6": "Application mobile pour le personnel",
-    "proPlusPlanFeature7": "Messagerie et demandes de congé via l'application mobile",
+    "proPlusPlanFeature4": "Exportation avancée",
+    "proPlusPlanFeature5": "Application mobile pour le personnel",
+    "proPlusPlanFeature6": "Messagerie et demandes de congé via l'application mobile",
     "perMonth": "/mois",
     "choosePlan": "Choisir ce plan"
   },

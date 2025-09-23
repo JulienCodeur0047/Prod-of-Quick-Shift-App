@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Facebook, Zap, Eye, UsersRound, ArrowRight, UserCheck, CalendarOff, Briefcase, FileDown, Bell, Smartphone } from 'lucide-react';
+import { Calendar, Users, BarChart3, LogIn, Twitter, Linkedin, Facebook, Zap, Eye, UsersRound, ArrowRight, UserCheck, CalendarOff, Briefcase, FileDown, Bell, Smartphone, Clock, Send } from 'lucide-react';
 import Pricing from './Pricing';
 import ThemeToggle from './ThemeToggle';
 import { Plan } from '../types';
@@ -160,6 +160,45 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onRegisterClick
                 demo={<AnimatedDemos.RosterDemo />}
                 align="right"
             />
+
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <AnimatedDemos.MobileDemo />
+                </div>
+                <div className="space-y-6">
+                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{t('landingPage.mobile.title')}</h3>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">{t('landingPage.mobile.description')}</p>
+                    <ul className="space-y-4">
+                        <li className="flex items-start">
+                            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-slate-800">
+                                <Clock size={24} className="text-blue-500 dark:text-blue-400"/>
+                            </div>
+                            <div className="ml-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{t('landingPage.mobile.feature1Title')}</h4>
+                                <p className="text-gray-600 dark:text-gray-400">{t('landingPage.mobile.feature1Desc')}</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start">
+                            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-slate-800">
+                                <Smartphone size={24} className="text-blue-500 dark:text-blue-400"/>
+                            </div>
+                            <div className="ml-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{t('landingPage.mobile.feature2Title')}</h4>
+                                <p className="text-gray-600 dark:text-gray-400">{t('landingPage.mobile.feature2Desc')}</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start">
+                            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-100 dark:bg-slate-800">
+                                <Send size={24} className="text-blue-500 dark:text-blue-400"/>
+                            </div>
+                            <div className="ml-4">
+                                <h4 className="font-semibold text-gray-900 dark:text-white">{t('landingPage.mobile.feature3Title')}</h4>
+                                <p className="text-gray-600 dark:text-gray-400">{t('landingPage.mobile.feature3Desc')}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             <div>
               <div className="text-center mb-12">

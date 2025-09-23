@@ -161,11 +161,36 @@ const AppWindow: React.FC = () => {
     );
 };
 
+const MobileDemo: React.FC = () => {
+    const { t } = useLanguage();
+    return (
+        <div className="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[450px] w-[220px] shadow-xl">
+            <div className="w-[120px] h-[18px] bg-gray-800 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute"></div>
+            <div className="h-[32px] w-[3px] bg-gray-800 absolute -left-[17px] top-[72px] rounded-l-lg"></div>
+            <div className="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[124px] rounded-l-lg"></div>
+            <div className="h-[46px] w-[3px] bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
+            <div className="rounded-[2rem] overflow-hidden w-full h-full bg-blue-night-950">
+                <div className="p-4 text-white space-y-4">
+                    <p className="text-sm font-semibold">{t('mobile.greeting', { name: 'Alex' })}</p>
+                    <div className="p-3 bg-blue-night-900 rounded-lg space-y-2">
+                        <p className="text-xs text-blue-night-300">{t('mobile.todaysShift')}</p>
+                        <p className="text-lg font-bold font-mono">09:00 - 17:00</p>
+                    </div>
+                    <div className="p-3 bg-green-500 rounded-lg text-center font-bold animate-pulse-light">
+                        {t('mobile.clockIn')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AnimatedDemos = {
     AppWindow,
     CalendarDemo,
     DashboardDemo,
     RosterDemo,
+    MobileDemo
 };
 
 export default AnimatedDemos;

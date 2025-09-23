@@ -9,7 +9,7 @@ import CalendarFilter from './CalendarFilter';
 import SpecialDayEditor from './SpecialDayEditor';
 import ExportModal from './ExportModal';
 import FeatureTour, { TourStep } from './FeatureTour';
-import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, Gem, ZoomIn, ZoomOut, Lock, Unlock, Send, Loader2, Lightbulb, Repeat } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, CheckSquare, XSquare, UserMinus, Star, Download, ZoomIn, ZoomOut, Lock, Unlock, Lightbulb, Repeat } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -105,7 +105,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         onSaveSpecialDay, onDeleteSpecialDay, onBulkAddShifts
     } = props;
     
-    const { user, permissions } = useAuth();
+    const { permissions } = useAuth();
     const { t, language } = useLanguage();
     const { theme } = useTheme();
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -127,13 +127,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const [selectedShiftIds, setSelectedShiftIds] = useState<string[]>([]);
     
     const [filters, setFilters] = useState<{ employeeIds: string[], roleNames: string[], departmentIds: string[] }>({ employeeIds: [], roleNames: [], departmentIds: [] });
-
-    // State for notification feature
-    const [isNotifying, setIsNotifying] = useState(false);
-    const [unsentChanges, setUnsentChanges] = useState<Set<string>>(new Set());
     const [isTourActive, setIsTourActive] = useState(false);
-
-    const canNotify = user?.plan === 'Pro Plus';
 
     const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate]);
     const monthGridDays = useMemo(() => getMonthGridDays(currentDate), [currentDate]);
@@ -230,7 +224,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         }
     
         // --- Update Shift ---
-        setUnsentChanges(prev => new Set(prev).add(shiftId));
         const duration = originalShift.endTime.getTime() - originalShift.startTime.getTime();
         const newStartTime = new Date(day);
         newStartTime.setHours(originalShift.startTime.getHours(), originalShift.startTime.getMinutes(), originalShift.startTime.getSeconds(), originalShift.startTime.getMilliseconds());
@@ -261,28 +254,16 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     }
     const openDayDetailModal = (date: Date) => { if (!isLocked) setDayDetailModal({isOpen: true, date: date}); }
 
-    // Handlers that update notification state
     const handleShiftSave = (shift: Shift) => { 
-        setUnsentChanges(prev => new Set(prev).add(shift.id));
         onSaveShift(shift); 
         setShiftEditorState({isOpen: false, shift: null}); 
     }
     const handleShiftDelete = (shiftId: string) => { 
-        setUnsentChanges(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(shiftId);
-            return newSet;
-        });
         onDeleteShift(shiftId); 
         setShiftEditorState({isOpen: false, shift: null}); 
     }
      const handleDeleteSelected = () => {
         if(selectedShiftIds.length > 0 && window.confirm(t('modals.confirmDeleteMultiple', { count: selectedShiftIds.length }))) {
-            setUnsentChanges(prev => {
-                const newSet = new Set(prev);
-                selectedShiftIds.forEach(id => newSet.delete(id));
-                return newSet;
-            });
             onDeleteMultipleShifts(selectedShiftIds);
             setSelectedShiftIds([]);
             setIsSelectionModeActive(false);
@@ -301,20 +282,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     const handleZoomIn = () => setZoomLevel(level => Math.min(level + 1, 2));
     const handleZoomOut = () => setZoomLevel(level => Math.max(level - 1, 0));
     const toggleLock = () => setIsLocked(prev => !prev);
-
-    const handleSendNotifications = async () => {
-        if (!canNotify) return;
-        setIsNotifying(true);
-        const changesCount = unsentChanges.size;
-
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        alert(t('schedule.notificationSuccess', { count: changesCount }));
-
-        setIsNotifying(false);
-        setUnsentChanges(new Set());
-    };
-
-    const totalChanges = unsentChanges.size;
 
     const getShiftEditorTitle = () => {
         if (shiftEditorState.shift) {
@@ -413,9 +380,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         onClick={() => permissions.canExport && setIsExportModalOpen(true)}
                         disabled={!permissions.canExport}
                         title={!permissions.canExport ? t('tooltips.proFeature') : ''}
-                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canExport ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-gray-600 hover:bg-gray-700'}`}
+                        className="flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
                      >
-                        {!permissions.canExport && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <Download size={20} className="mr-2" />
                         {t('schedule.export')}
                     </button>
@@ -423,9 +389,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                         onClick={() => permissions.canAddAbsence && openAddAbsenceModal()}
                         disabled={!permissions.canAddAbsence || isLocked}
                         title={!permissions.canAddAbsence ? t('tooltips.proFeature') : ''}
-                        className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative ${!permissions.canAddAbsence || isLocked ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
+                        className="flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 relative bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 dark:disabled:bg-gray-700 disabled:cursor-not-allowed"
                     >
-                        {!permissions.canAddAbsence && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
                         <UserMinus size={20} className="mr-2" />
                         {t('schedule.addAbsence')}
                     </button>
@@ -599,43 +564,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                 </div>
             )}
             
-            {totalChanges > 0 && (
-                <div className="flex items-center justify-start p-3 mt-2 bg-gray-50 dark:bg-blue-night-950 border-t border-gray-200 dark:border-blue-night-800 rounded-b-lg shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">
-                    <div className="flex items-center">
-                        <div className="mr-4">
-                            <p className="font-bold text-gray-800 dark:text-gray-200">{t('schedule.unsentChangesTitle')}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('schedule.unsentChangesDesc', { count: totalChanges })}</p>
-                        </div>
-                        <div className="relative">
-                            <button
-                                onClick={handleSendNotifications}
-                                disabled={isNotifying || !canNotify}
-                                title={!canNotify ? t('tooltips.proPlusFeature') : ''}
-                                className={`flex items-center text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 ${
-                                    !canNotify
-                                    ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'
-                                    : 'bg-green-600 hover:bg-green-700 disabled:bg-green-400 dark:disabled:bg-green-800 disabled:cursor-wait'
-                                }`}
-                            >
-                                {isNotifying ? (
-                                    <>
-                                        <Loader2 size={20} className="mr-2 animate-spin" />
-                                        {t('schedule.sending')}
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send size={18} className="mr-2" />
-                                        {t('schedule.notifyEmployees')}
-                                    </>
-                                )}
-                            </button>
-                             {!canNotify && <Gem size={14} className="absolute -top-1 -right-1 text-yellow-400 dark:text-blue-night-400" />}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
             {shiftEditorState.isOpen && (
                 <ShiftEditor 
                     shift={shiftEditorState.shift} 
