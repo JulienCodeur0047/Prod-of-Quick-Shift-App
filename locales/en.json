@@ -42,6 +42,8 @@
     "noDataForFilters": "No data available for the selected filters.",
     "exportCSV": "Export as CSV",
     "csvHeaderStaff": "Staff Member",
+    "csvHeaderEmail": "Email",
+    "csvHeaderPhone": "Phone",
     "csvHeaderHours": "Scheduled Hours",
     "csvHeaderActualHours": "Actual Hours (Clocked)",
     "csvTotal": "Total",

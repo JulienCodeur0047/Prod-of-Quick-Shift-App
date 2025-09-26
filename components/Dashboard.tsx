@@ -137,7 +137,7 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
             ? shiftsAfterRoleFilter.filter(s => s.actualStartTime && s.actualEndTime) // Only completed, clocked shifts
             : shiftsAfterRoleFilter; // All scheduled shifts
         
-        const hoursByEmployee: { [employeeId: string]: { name: string; hours: number } } = {};
+        const hoursByEmployee: { [employeeId: string]: { name: string; email: string; phone: string; hours: number } } = {};
         
         const totalHours = relevantShifts.reduce((acc, shift) => {
             const duration = isProPlus
@@ -147,7 +147,12 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
             if (shift.employeeId) {
                 if (!hoursByEmployee[shift.employeeId]) {
                     const employee = employeeMap.get(shift.employeeId);
-                    hoursByEmployee[shift.employeeId] = { name: employee?.name || 'Unknown', hours: 0 };
+                    hoursByEmployee[shift.employeeId] = {
+                        name: employee?.name || 'Unknown',
+                        email: employee?.email || '',
+                        phone: employee?.phone || '',
+                        hours: 0
+                    };
                 }
                 hoursByEmployee[shift.employeeId].hours += duration;
             }
@@ -169,17 +174,22 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
 
         const isProPlus = user?.plan === 'Pro Plus';
         const hoursHeader = isProPlus ? t('dashboard.csvHeaderActualHours') : t('dashboard.csvHeaderHours');
-        const headers = [t('dashboard.csvHeaderStaff'), hoursHeader];
+        const headers = [t('dashboard.csvHeaderStaff'), t('dashboard.csvHeaderEmail'), t('dashboard.csvHeaderPhone'), hoursHeader];
 
         let csvContent = headers.join(',') + '\n';
     
         employeeHoursList.forEach(emp => {
-            const row = [`"${emp.name.replace(/"/g, '""')}"`, emp.hours.toFixed(1)].join(',');
+            const row = [
+                `"${emp.name.replace(/"/g, '""')}"`,
+                `"${emp.email.replace(/"/g, '""')}"`,
+                `"${emp.phone.replace(/"/g, '""')}"`,
+                emp.hours.toFixed(1)
+            ].join(',');
             csvContent += row + '\n';
         });
         
         csvContent += '\n'; 
-        const totalRow = [`"${t('dashboard.csvTotal')}"`, totalHours.toFixed(1)].join(',');
+        const totalRow = [`"${t('dashboard.csvTotal')}"`, '', '', totalHours.toFixed(1)].join(',');
         csvContent += totalRow + '\n';
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

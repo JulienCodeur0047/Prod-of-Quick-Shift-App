@@ -176,16 +176,32 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
 
     const handlePrev = () => {
         if (view === 'week') {
-            setCurrentDate(d => new Date(d.setDate(d.getDate() - 7)));
+            setCurrentDate(d => {
+                const newDate = new Date(d);
+                newDate.setDate(newDate.getDate() - 7);
+                return newDate;
+            });
         } else {
-            setCurrentDate(d => new Date(d.setMonth(d.getMonth() - 1)));
+            setCurrentDate(d => {
+                const newDate = new Date(d);
+                newDate.setMonth(newDate.getMonth() - 1);
+                return newDate;
+            });
         }
     };
     const handleNext = () => {
         if (view === 'week') {
-            setCurrentDate(d => new Date(d.setDate(d.getDate() + 7)));
+            setCurrentDate(d => {
+                const newDate = new Date(d);
+                newDate.setDate(newDate.getDate() + 7);
+                return newDate;
+            });
         } else {
-            setCurrentDate(d => new Date(d.setMonth(d.getMonth() + 1)));
+            setCurrentDate(d => {
+                const newDate = new Date(d);
+                newDate.setMonth(newDate.getMonth() + 1);
+                return newDate;
+            });
         }
     };
     
