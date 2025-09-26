@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { Shift, AbsenceType } from '../types';
+import { Shift, AbsenceType, Location, Department } from '../types';
 import * as api from '../services/api';
 import { useMobileAuth } from './MobileAuthContext';
 
 interface MobileDataContextType {
     shifts: Shift[];
     absenceTypes: AbsenceType[];
+    locations: Location[];
+    departments: Department[];
     isLoading: boolean;
     error: string | null;
     refetchData: () => void;
@@ -19,6 +21,8 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
     const { employee } = useMobileAuth();
     const [shifts, setShifts] = useState<Shift[]>([]);
     const [absenceTypes, setAbsenceTypes] = useState<AbsenceType[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [departments, setDepartments] = useState<Department[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +35,8 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
             const data = await api.apiGetMobileData(employee.id, employee.companyId);
             setShifts(data.shifts);
             setAbsenceTypes(data.absenceTypes);
+            setLocations(data.locations);
+            setDepartments(data.departments);
         } catch (err) {
             console.error(err);
             setError("Failed to load schedule data.");
@@ -81,6 +87,8 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
     const value = {
         shifts,
         absenceTypes,
+        locations,
+        departments,
         isLoading,
         error,
         refetchData: fetchData,

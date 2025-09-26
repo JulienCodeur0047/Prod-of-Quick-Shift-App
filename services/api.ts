@@ -2,31 +2,25 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-// Fix: Import Employee type
-import { User, Shift, Subscription, Payment, Plan, Employee, AbsenceType, InboxMessage } from '../types';
+// Fix: Import Employee, Location, Department types
+import { User, Shift, Subscription, Payment, Plan, Employee, AbsenceType, InboxMessage, Location, Department } from '../types';
 
 // --- CONTROL FLAG ---
 // Set this to false to enable Firebase functionality.
 const IS_FIREBASE_DISABLED = true;
 
 // --- FIREBASE CONFIGURATION ---
-// For enhanced security, Firebase configuration is loaded from environment variables.
-// Create a `.env` file in the root of your project and add the following:
-// REACT_APP_API_KEY=your_api_key
-// REACT_APP_AUTH_DOMAIN=your_auth_domain
-// REACT_APP_PROJECT_ID=your_project_id
-// REACT_APP_STORAGE_BUCKET=your_storage_bucket
-// REACT_APP_MESSAGING_SENDER_ID=your_messaging_sender_id
-// REACT_APP_APP_ID=your_app_id
-// REACT_APP_MEASUREMENT_ID=your_measurement_id
+// IMPORTANT: Replace the placeholder values below with your actual Firebase project configuration.
+// You can find your configuration in the Firebase console under:
+// Project settings > General > Your apps > Web app > SDK setup and configuration
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_APP_ID,
-  measurementId: process.env.REACT_APP_MEASUREMENT_ID
+  apiKey: "AIzaSyDOCAb--VSErBg345Y_jFe12345EXAMPLE",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:a1b2c3d4e5f6a1b2c3d4e5",
+  measurementId: "G-XXXXXXXXXX"
 };
 
 
@@ -309,24 +303,6 @@ export const apiChangePassword = async (currentPassword: string, newPassword: st
 
 // --- MOBILE APP API ---
 export const apiLoginEmployee = async (email: string, accessCode: string): Promise<Employee | null> => {
-    if (IS_FIREBASE_DISABLED) {
-        // Mock a successful login for preview purposes
-        if (email && accessCode) {
-            console.log(`Mock login for ${email}`);
-            return {
-                id: 'mobile-user-1',
-                name: 'Jane Doe',
-                email: email,
-                role: 'Cashier',
-                avatarUrl: null,
-                phone: '555-123-4567',
-                gender: 'Female',
-                companyId: 'mock-company-1',
-                accessCode: accessCode,
-            };
-        }
-        return null;
-    }
     try {
         const query = db.collection('employees')
             .where('email', '==', email)
@@ -345,53 +321,7 @@ export const apiLoginEmployee = async (email: string, accessCode: string): Promi
     }
 };
 
-export const apiGetMobileData = async (employeeId: string, companyId: string): Promise<{ shifts: Shift[], absenceTypes: AbsenceType[] }> => {
-    if (IS_FIREBASE_DISABLED) {
-        // Provide mock data for the mobile preview
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(today.getDate() + 1);
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 8);
-        
-        const mockShifts: Shift[] = [
-            {
-                id: 'shift-today',
-                employeeId: employeeId,
-                startTime: new Date(new Date().setHours(9, 0, 0, 0)),
-                endTime: new Date(new Date().setHours(17, 0, 0, 0)),
-                locationId: 'Main Store',
-                departmentId: 'Electronics',
-                companyId: companyId,
-            },
-            {
-                id: 'shift-tomorrow',
-                employeeId: employeeId,
-                startTime: new Date(new Date(tomorrow).setHours(14, 0, 0, 0)),
-                endTime: new Date(new Date(tomorrow).setHours(22, 0, 0, 0)),
-                locationId: 'Warehouse',
-                departmentId: 'Logistics',
-                companyId: companyId,
-            },
-             {
-                id: 'shift-next-week',
-                employeeId: employeeId,
-                startTime: new Date(new Date(nextWeek).setHours(10, 0, 0, 0)),
-                endTime: new Date(new Date(nextWeek).setHours(18, 0, 0, 0)),
-                locationId: 'Main Store',
-                departmentId: 'Cashier',
-                companyId: companyId,
-            }
-        ];
-
-        const mockAbsenceTypes: AbsenceType[] = [
-            { id: 'at-1', name: 'Sick Leave', color: '#f44336', companyId: companyId },
-            { id: 'at-2', name: 'Vacation', color: '#2196f3', companyId: companyId },
-            { id: 'at-3', name: 'Personal', color: '#ff9800', companyId: companyId },
-        ];
-
-        return { shifts: mockShifts, absenceTypes: mockAbsenceTypes };
-    }
+export const apiGetMobileData = async (employeeId: string, companyId: string): Promise<{ shifts: Shift[], absenceTypes: AbsenceType[], locations: Location[], departments: Department[] }> => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -406,33 +336,33 @@ export const apiGetMobileData = async (employeeId: string, companyId: string): P
 
         const absenceTypesQuery = db.collection('absenceTypes')
             .where('companyId', '==', companyId);
+        
+        const locationsQuery = db.collection('locations')
+            .where('companyId', '==', companyId);
 
-        const [shiftsSnapshot, absenceTypesSnapshot] = await Promise.all([
+        const departmentsQuery = db.collection('departments')
+            .where('companyId', '==', companyId);
+
+        const [shiftsSnapshot, absenceTypesSnapshot, locationsSnapshot, departmentsSnapshot] = await Promise.all([
             shiftsQuery.get(),
             absenceTypesQuery.get(),
+            locationsQuery.get(),
+            departmentsQuery.get()
         ]);
         
         const shifts = shiftsSnapshot.docs.map(docWithId);
         const absenceTypes = absenceTypesSnapshot.docs.map(docWithId);
+        const locations = locationsSnapshot.docs.map(docWithId);
+        const departments = departmentsSnapshot.docs.map(docWithId);
 
-        return { shifts, absenceTypes };
+        return { shifts, absenceTypes, locations, departments };
     } catch (error) {
         console.error("Error fetching mobile data:", error);
-        return { shifts: [], absenceTypes: [] };
+        return { shifts: [], absenceTypes: [], locations: [], departments: [] };
     }
 };
 
 export const apiSubmitRequest = async (requestData: Omit<InboxMessage, 'id' | 'status' | 'date'>): Promise<InboxMessage> => {
-     if (IS_FIREBASE_DISABLED) {
-        // Simulate a successful request submission for preview
-        console.log("Simulating request submission:", requestData);
-        return {
-            ...requestData,
-            id: `msg-${Date.now()}`,
-            date: new Date(),
-            status: 'pending',
-        } as InboxMessage;
-    }
     const fullRequestData = {
         ...requestData,
         date: new Date(),

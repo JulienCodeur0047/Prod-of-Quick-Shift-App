@@ -11,7 +11,7 @@ const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() 
 
 const TodayScreen: React.FC = () => {
     const { employee } = useMobileAuth();
-    const { shifts, isLoading, updateShift } = useMobileData();
+    const { shifts, isLoading, updateShift, locations, departments } = useMobileData();
     const { t } = useLanguage();
     const [now, setNow] = useState(new Date());
 
@@ -26,6 +26,9 @@ const TodayScreen: React.FC = () => {
 
     const today = new Date();
     const todaysShift = shifts.find(shift => isSameDay(new Date(shift.startTime), today));
+
+    const locationName = locations.find(l => l.id === todaysShift?.locationId)?.name;
+    const departmentName = departments.find(d => d.id === todaysShift?.departmentId)?.name;
 
     const formatTime = (date: Date) => new Date(date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     
@@ -126,21 +129,21 @@ const TodayScreen: React.FC = () => {
                                 <p className="font-mono font-semibold text-slate-800 dark:text-slate-100">{formatTime(todaysShift.startTime)} - {formatTime(todaysShift.endTime)}</p>
                             </div>
                         </div>
-                        {todaysShift.locationId && (
+                        {locationName && (
                             <div className="flex items-center">
                                 <MapPin size={20} className="text-blue-500 dark:text-blue-400 mr-3 flex-shrink-0" />
                                 <div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">{t('mobile.location')}</p>
-                                    <p className="font-semibold text-slate-800 dark:text-slate-100">{todaysShift.locationId || t('mobile.notAssigned')}</p>
+                                    <p className="font-semibold text-slate-800 dark:text-slate-100">{locationName || t('mobile.notAssigned')}</p>
                                 </div>
                             </div>
                         )}
-                         {todaysShift.departmentId && (
+                         {departmentName && (
                             <div className="flex items-center">
                                 <Briefcase size={20} className="text-blue-500 dark:text-blue-400 mr-3 flex-shrink-0" />
                                 <div>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">{t('mobile.department')}</p>
-                                    <p className="font-semibold text-slate-800 dark:text-slate-100">{todaysShift.departmentId || t('mobile.notAssigned')}</p>
+                                    <p className="font-semibold text-slate-800 dark:text-slate-100">{departmentName || t('mobile.notAssigned')}</p>
                                 </div>
                             </div>
                         )}

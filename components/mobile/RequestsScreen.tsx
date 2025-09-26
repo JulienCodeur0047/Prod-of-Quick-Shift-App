@@ -21,7 +21,6 @@ const RequestsScreen: React.FC = () => {
     });
 
     const [complaintData, setComplaintData] = useState({
-        subject: '',
         body: '',
     });
 
@@ -53,13 +52,13 @@ const RequestsScreen: React.FC = () => {
         setIsLoading(true);
          const success = await submitRequest({
             type: 'complaint',
-            subject: complaintData.subject,
+            subject: t('mobile.complaint'),
             body: complaintData.body,
         });
         setIsLoading(false);
         if (success) {
             setModalInfo({ isOpen: true, title: t('mobile.requestSuccessTitle'), body: t('mobile.requestSuccessBody') });
-            setComplaintData({ subject: '', body: '' });
+            setComplaintData({ body: '' });
         } else {
              setModalInfo({ isOpen: true, title: t('mobile.errorTitle'), body: t('mobile.errorBody') });
         }
@@ -128,12 +127,8 @@ const RequestsScreen: React.FC = () => {
             {activeTab === 'complaint' && (
                  <form onSubmit={handleComplaintSubmit} className="space-y-4 animate-slide-in-up">
                     <div>
-                        <label className={labelStyle}>{t('mobile.subject')}</label>
-                        <input type="text" value={complaintData.subject} onChange={e => setComplaintData({...complaintData, subject: e.target.value})} required placeholder={t('mobile.subjectPlaceholder')} className={inputStyle}/>
-                    </div>
-                    <div>
                         <label className={labelStyle}>{t('mobile.message')}</label>
-                        <textarea value={complaintData.body} onChange={e => setComplaintData({...complaintData, body: e.target.value})} required placeholder={t('mobile.complaintPlaceholder')} rows={5} className={inputStyle}></textarea>
+                        <textarea value={complaintData.body} onChange={e => setComplaintData({ body: e.target.value })} required placeholder={t('mobile.complaintPlaceholder')} rows={5} className={inputStyle}></textarea>
                     </div>
                     <button type="submit" disabled={isLoading} className={buttonStyle}>
                          {isLoading ? <Loader2 className="animate-spin" /> : <><Send size={16} className="mr-2"/> {t('mobile.submitComplaint')}</>}
