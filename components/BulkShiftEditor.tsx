@@ -153,13 +153,20 @@ const BulkShiftEditor: React.FC<BulkShiftEditorProps> = (props) => {
                     continue;
                 }
                 
-                newShifts.push({
+                const shiftToAdd: Omit<Shift, 'id' | 'companyId'> = {
                     employeeId: empId,
                     startTime: newStartTime,
                     endTime: newEndTime,
-                    locationId: locationId || undefined,
-                    departmentId: departmentId || undefined,
-                });
+                };
+
+                if (locationId) {
+                    shiftToAdd.locationId = locationId;
+                }
+                if (departmentId) {
+                    shiftToAdd.departmentId = departmentId;
+                }
+
+                newShifts.push(shiftToAdd);
             }
         }
 

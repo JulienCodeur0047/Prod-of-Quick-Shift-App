@@ -164,17 +164,25 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             }
         }
 
-
-        const updatedShift: Shift = {
+        const updatedShiftBase = {
             id: shift?.id || `shift-${Date.now()}`,
             employeeId: formData.employeeId || null,
             startTime: newStartTime,
             endTime: newEndTime,
-            locationId: formData.locationId || undefined,
-            departmentId: formData.departmentId || undefined,
             companyId: user!.companyId,
-            actualStartTime: shift?.actualStartTime,
-            actualEndTime: shift?.actualEndTime,
+        };
+
+        const optionalFields: Partial<Shift> = {};
+        if (formData.locationId) optionalFields.locationId = formData.locationId;
+        if (formData.departmentId) optionalFields.departmentId = formData.departmentId;
+
+        // Preserve existing time clock data when editing
+        if (shift?.actualStartTime) optionalFields.actualStartTime = shift.actualStartTime;
+        if (shift?.actualEndTime) optionalFields.actualEndTime = shift.actualEndTime;
+
+        const updatedShift: Shift = {
+            ...updatedShiftBase,
+            ...optionalFields,
         };
         onSave(updatedShift);
     };
