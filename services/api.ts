@@ -407,6 +407,21 @@ export const getCompanyData = async (companyId: string): Promise<any> => {
     return Object.assign({}, ...allDataArrays);
 };
 
+export const apiGetInboxMessages = async (companyId: string): Promise<InboxMessage[]> => {
+    if (IS_FIREBASE_DISABLED) {
+        return [];
+    }
+    try {
+        const collRef = db.collection('inboxMessages');
+        const q = collRef.where("companyId", "==", companyId);
+        const snapshot = await q.get();
+        return snapshot.docs.map(docWithId);
+    } catch (error) {
+        console.error("Error fetching inbox messages:", error);
+        return [];
+    }
+};
+
 export const apiCreateItem = async <T extends {id: string}>(collectionName: string, data: Omit<T, 'id'>): Promise<T> => {
     if (IS_FIREBASE_DISABLED) throw new Error("Firebase is disabled. Cannot create item.");
     // Fix: Use v8 firestore syntax for adding documents.

@@ -125,6 +125,23 @@ export const DataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         }
     }, [user]);
 
+    useEffect(() => {
+        if (!user?.companyId) {
+            return;
+        }
+
+        const intervalId = setInterval(async () => {
+            try {
+                const messages = await api.apiGetInboxMessages(user.companyId);
+                dispatch({ type: 'SET_DATA', payload: { inboxMessages: messages } });
+            } catch (error) {
+                console.error("Failed to refetch inbox messages:", error);
+            }
+        }, 60000); // Poll every 60 seconds (1 minute)
+
+        return () => clearInterval(intervalId);
+    }, [user]);
+
     // Fix: Improve generic type safety for item handlers to prevent type mismatches.
     // Generic handler for saving (creating or updating) an item with optimistic UI
     const handleSaveItem = async <K extends keyof CompanyDataContextType>(
