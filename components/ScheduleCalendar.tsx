@@ -139,7 +139,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
             // Always include open shifts, they are filtered out later if needed but should bypass employee filters
             if (!shift.employeeId) return true;
 
-            const employee = employeeMap.get(shift.employeeId);
+            // FIX: Explicitly type the employee object from the map to resolve type errors.
+            const employee: Employee | undefined = employeeMap.get(shift.employeeId);
             if (!employee) return false;
 
             const employeeMatch = filters.employeeIds.length === 0 || filters.employeeIds.includes(employee.id);
@@ -150,7 +151,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         });
         
         const filteredAbsences = absences.filter(absence => {
-            const employee = employeeMap.get(absence.employeeId);
+            // FIX: Explicitly type the employee object from the map to resolve type errors.
+            const employee: Employee | undefined = employeeMap.get(absence.employeeId);
             if (!employee) return false;
 
             const employeeMatch = filters.employeeIds.length === 0 || filters.employeeIds.includes(employee.id);

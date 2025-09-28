@@ -127,7 +127,8 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
         
         const shiftsAfterRoleFilter = hourAnalysisFilters.roleNames.length > 0
             ? shiftsAfterDeptFilter.filter(s => {
-                const employee = employeeMap.get(s.employeeId!);
+                // FIX: Explicitly type the employee object from the map to resolve type errors.
+                const employee: Employee | undefined = employeeMap.get(s.employeeId!);
                 return employee && hourAnalysisFilters.roleNames.includes(employee.role);
               })
             : shiftsAfterDeptFilter;
@@ -146,7 +147,8 @@ const Dashboard: React.FC<DashboardProps> = ({ employees, shifts, absences, abse
             
             if (shift.employeeId) {
                 if (!hoursByEmployee[shift.employeeId]) {
-                    const employee = employeeMap.get(shift.employeeId);
+                    // FIX: Explicitly type the employee object from the map to resolve type errors.
+                    const employee: Employee | undefined = employeeMap.get(shift.employeeId);
                     hoursByEmployee[shift.employeeId] = {
                         name: employee?.name || 'Unknown',
                         email: employee?.email || '',

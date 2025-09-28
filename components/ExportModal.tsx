@@ -22,8 +22,10 @@ const getWeekDays = (date: Date): Date[] => {
 };
 
 const toInputDateString = (date: Date): string => {
-    // Adjust for timezone to get correct local date in YYYY-MM-DD format
-    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
@@ -157,17 +159,18 @@ const ExportModal: React.FC<ExportModalProps> = (props) => {
 
         sortedShifts.forEach(shift => {
             if (!shift.employeeId) return;
-            const employee = employeeMap.get(shift.employeeId);
+            // FIX: Explicitly type employee, location, and department objects from maps to resolve type errors.
+            const employee: Employee | undefined = employeeMap.get(shift.employeeId);
             if (!employee) return;
             
             const date = shift.startTime.toLocaleDateString();
             const startTime = shift.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const endTime = shift.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const hours = ((shift.endTime.getTime() - shift.startTime.getTime()) / 3600000).toFixed(2);
-            const location = locationMap.get(shift.locationId || '')?.name || '';
-            const department = departmentMap.get(shift.departmentId || '')?.name || '';
+            const location: Location | undefined = locationMap.get(shift.locationId || '');
+            const department: Department | undefined = departmentMap.get(shift.departmentId || '');
             
-            const row = [date, `"${employee.name}"`, employee.role, startTime, endTime, hours, `"${location}"`, `"${department}"`].join(',');
+            const row = [date, `"${employee.name}"`, employee.role, startTime, endTime, hours, `"${location?.name || ''}"`, `"${department?.name || ''}"`].join(',');
             csvContent += row + "\n";
         });
 

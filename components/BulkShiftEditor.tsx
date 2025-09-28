@@ -19,7 +19,13 @@ interface BulkShiftEditorProps {
     allSpecialDayTypes: SpecialDayType[];
 }
 
-const toInputDateString = (date: Date) => date.toISOString().split('T')[0];
+const toInputDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 const isSameDay = (d1: Date, d2: Date) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 const isDateBetween = (date: Date, start: Date, end: Date) => {
     const checkDate = new Date(date); checkDate.setHours(0,0,0,0);
@@ -118,7 +124,8 @@ const BulkShiftEditor: React.FC<BulkShiftEditorProps> = (props) => {
         const employeeMap = new Map(employees.map(e => [e.id, e]));
 
         for (const empId of employeeIds) {
-            const employee = employeeMap.get(empId);
+            // FIX: Explicitly type the employee object from the map to resolve type errors.
+            const employee: Employee | undefined = employeeMap.get(empId);
             if (!employee) continue;
 
             for (const date of targetDates) {
@@ -127,7 +134,11 @@ const BulkShiftEditor: React.FC<BulkShiftEditorProps> = (props) => {
 
                 const newEndTime = new Date(date);
                 newEndTime.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]), 0, 0);
-                if (newEndTime <= newStartTime) newEndTime.setDate(newEndTime.getDate() + 1);
+                
+                // Fix: Use string comparison for time to avoid Date object timezone issues when checking for overnight shifts.
+                if (endTime <= startTime) {
+                    newEndTime.setDate(newEndTime.getDate() + 1);
+                }
 
                 // Check for Holiday
                 const holidayOnDay = allSpecialDays.find(sd => {
