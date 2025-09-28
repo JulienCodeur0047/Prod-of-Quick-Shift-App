@@ -142,6 +142,53 @@ export const DataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         return () => clearInterval(intervalId);
     }, [user]);
 
+    // Automatic Clock-Out for Pro Plus users
+    useEffect(() => {
+        if (user?.plan !== 'Pro Plus' || !user?.companyId) {
+            return;
+        }
+
+        const autoClockOutInterval = setInterval(async () => {
+            const now = new Date();
+            const shiftsToAutoClockOut: Shift[] = [];
+
+            state.shifts.forEach(shift => {
+                const thirtyMinsAfterEnd = new Date(new Date(shift.endTime).getTime() + 30 * 60 * 1000);
+                if (shift.actualStartTime && !shift.actualEndTime && now > thirtyMinsAfterEnd) {
+                    shiftsToAutoClockOut.push({
+                        ...shift,
+                        actualEndTime: shift.endTime, // Clock out at scheduled end time
+                    });
+                }
+            });
+
+            if (shiftsToAutoClockOut.length > 0) {
+                console.log(`Auto-clocking out ${shiftsToAutoClockOut.length} shifts.`);
+                
+                const updatePromises = shiftsToAutoClockOut.map(s => 
+                    api.apiUpdateItem('shifts', s.id, s)
+                );
+                
+                try {
+                    await Promise.all(updatePromises);
+
+                    // Update local state
+                    const updatedShifts = state.shifts.map(originalShift => {
+                        const foundUpdate = shiftsToAutoClockOut.find(s => s.id === originalShift.id);
+                        return foundUpdate || originalShift;
+                    });
+                    
+                    dispatch({ type: 'SET_DATA', payload: { shifts: updatedShifts } });
+
+                } catch (error) {
+                    console.error("Failed to auto-clock out shifts:", error);
+                }
+            }
+        }, 60000); // Check every minute
+
+        return () => clearInterval(autoClockOutInterval);
+    }, [user, state.shifts]);
+
     // Fix: Improve generic type safety for item handlers to prevent type mismatches.
     // Generic handler for saving (creating or updating) an item with optimistic UI
     const handleSaveItem = async <K extends keyof CompanyDataContextType>(

@@ -1,7 +1,7 @@
 // FIX: Import `useMemo` from React to resolve the 'Cannot find name' error.
 import React, { useState, useEffect, useMemo } from 'react';
 import { Shift, Employee, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, EmployeeAvailability, AvailabilityStatus, TimeBlock } from '../types';
-import { Trash2, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
+import { Trash2, CheckCircle, AlertTriangle, Lock, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
@@ -217,6 +217,17 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
         }
     };
     
+    const handleUnplannedClockOut = () => {
+        if (!shift) return;
+        if (window.confirm(t('modals.unplannedExitConfirm'))) {
+            const updatedShift = {
+                ...shift,
+                actualEndTime: new Date(),
+            };
+            onSave(updatedShift);
+        }
+    };
+
     const title = shift ? (shift.employeeId ? t('schedule.editShift') : t('schedule.assignShift')) : t('schedule.addShiftTitle');
 
     const modalFooter = (
@@ -313,6 +324,11 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                 {shift?.actualStartTime && (
                      <div className="pt-4 mt-4 border-t dark:border-slate-800">
                         <h4 className="label-style">{t('modals.timeClockData')}</h4>
+                        {user?.plan === 'Pro Plus' && (
+                            <p className="text-xs text-slate-500 dark:text-slate-400 -mt-2 mb-2 italic">
+                                {t('modals.autoClockOutInfo')}
+                            </p>
+                        )}
                         <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg space-y-2">
                              <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -321,6 +337,16 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                                 </div>
                                 <div>
                                     <label className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('modals.clockedOut')}</label>
+                                     {user?.plan === 'Pro Plus' && !shift.actualEndTime && (
+                                        <button
+                                            type="button"
+                                            onClick={handleUnplannedClockOut}
+                                            className="btn-secondary text-xs !py-1 !px-2 float-right -mt-1 flex items-center"
+                                        >
+                                            <Clock size={14} className="mr-1.5" />
+                                            {t('modals.unplannedExit')}
+                                        </button>
+                                    )}
                                     <input type="text" readOnly value={shift.actualEndTime ? formatDateTime(shift.actualEndTime) : '---'} className="input-style mt-1 !bg-slate-200 dark:!bg-slate-700" />
                                 </div>
                             </div>

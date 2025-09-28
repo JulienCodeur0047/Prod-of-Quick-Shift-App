@@ -485,7 +485,10 @@
     "errorNoDays": "Veuillez sélectionner au moins un jour de la semaine.",
     "errorConflictTitle": "Conflits d'horaire détectés",
     "errorConflictDesc": "Les shifts suivants n'ont pas pu être créés en raison de conflits. Veuillez les résoudre et réessayer.",
-    "errorPastShift": "Impossible d'ajouter des shifts à des dates passées."
+    "errorPastShift": "Impossible d'ajouter des shifts à des dates passées.",
+    "unplannedExit": "Sortie Imprévue",
+    "unplannedExitConfirm": "Êtes-vous sûr de vouloir pointer la sortie de cet employé maintenant ? Cette action est irréversible.",
+    "autoClockOutInfo": "Les oublis de pointage sont corrigés automatiquement 30 minutes après le shift."
   },
   "gender": {
     "male": "Homme",

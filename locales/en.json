@@ -485,7 +485,10 @@
     "errorNoDays": "Please select at least one day of the week.",
     "errorConflictTitle": "Scheduling Conflicts Found",
     "errorConflictDesc": "The following shifts could not be created due to conflicts. Please resolve them and try again.",
-    "errorPastShift": "Cannot add shifts to past dates."
+    "errorPastShift": "Cannot add shifts to past dates.",
+    "unplannedExit": "Unplanned Exit",
+    "unplannedExitConfirm": "Are you sure you want to clock out this employee now? This action cannot be undone.",
+    "autoClockOutInfo": "Staff who forget to clock out are automatically clocked out 30 minutes after their shift."
   },
   "gender": {
     "male": "Male",
