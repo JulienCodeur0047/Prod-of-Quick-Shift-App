@@ -2,7 +2,8 @@
 import React from 'react';
 import { Shift, Employee, Location, Department } from '../types';
 import Avatar from './Avatar';
-import { Trash2, MapPin, Briefcase, UserPlus } from 'lucide-react';
+import { Trash2, MapPin, Briefcase, UserPlus, Lock } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ShiftCardProps {
     shift: Shift;
@@ -40,7 +41,7 @@ const getShortFirstName = (name: string): string => {
 };
 
 const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel, isLocked }) => {
-
+    const { t } = useLanguage();
     const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     
     const handleDeleteClick = (e: React.MouseEvent) => {
@@ -70,7 +71,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                 onDragStart={(e) => onDragStart(e, shift.id)}
                 onClick={handleCardClick} 
                 title={title} 
-                className={`transition-all duration-300 ease-in-out ${isLocked ? 'cursor-default' : 'cursor-grab'}`}
+                className={`transition-all duration-300 ease-in-out ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab'}`}
             >
                 {employee ? (
                     <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden`}>
@@ -95,8 +96,13 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                 draggable={!isSelectionModeActive && !isLocked}
                 onDragStart={(e) => onDragStart(e, shift.id)}
                 onClick={handleCardClick}
-                className={`rounded-lg mb-2 border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+                className={`rounded-lg mb-2 border-l-4 border-dashed border-gray-400 dark:border-gray-500 group relative bg-gray-100 dark:bg-blue-night-900/70 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab active:cursor-grabbing'}`}
              >
+                 {isLocked && (
+                    <div className="absolute top-1.5 left-1.5 text-slate-400 dark:text-slate-500" title={t('tooltips.shiftLocked')}>
+                        <Lock size={12} />
+                    </div>
+                 )}
                 <div className="flex items-center mb-1">
                     <div className="w-6 h-6 rounded-full mr-2 bg-gray-300 dark:bg-blue-night-700 flex items-center justify-center flex-shrink-0">
                         <UserPlus size={14} className="text-gray-600 dark:text-gray-300" />
@@ -120,15 +126,13 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                         </div>
                     )}
                 </div>
-                 {!isLocked && (
-                    <button 
-                        onClick={handleDeleteClick}
-                        className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                        aria-label="Delete shift"
-                    >
-                        <Trash2 size={14} />
-                    </button>
-                 )}
+                <button 
+                    onClick={handleDeleteClick}
+                    className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Delete shift"
+                >
+                    <Trash2 size={14} />
+                </button>
             </div>
         );
     }
@@ -141,7 +145,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
             draggable={!isSelectionModeActive && !isLocked}
             onDragStart={(e) => onDragStart(e, shift.id)}
             onClick={handleCardClick}
-            className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+            className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab active:cursor-grabbing'}`}
         >
             {isSelectionModeActive && (
                 <input 
@@ -151,6 +155,11 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                     className="absolute top-2 right-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     onClick={(e) => e.stopPropagation()}
                 />
+            )}
+            {isLocked && !isSelectionModeActive && (
+                <div className="absolute top-1.5 left-1.5 text-slate-400 dark:text-slate-500" title={t('tooltips.shiftLocked')}>
+                    <Lock size={12} />
+                </div>
             )}
             <div className="flex items-center mb-1">
                 <Avatar name={employee.name} src={employee.avatarUrl} className={`rounded-full mr-2 ${zoomLevel === 1 ? 'w-5 h-5' : 'w-6 h-6'}`}/>
@@ -173,7 +182,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                     </div>
                 )}
             </div>
-            {!isSelectionModeActive && !isLocked && (
+            {!isSelectionModeActive && (
                  <button 
                     onClick={handleDeleteClick}
                     className="absolute top-1/2 -translate-y-1/2 right-2 p-1 rounded-full bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/80 text-red-600 dark:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"

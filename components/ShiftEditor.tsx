@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// FIX: Import `useMemo` from React to resolve the 'Cannot find name' error.
+import React, { useState, useEffect, useMemo } from 'react';
 import { Shift, Employee, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, EmployeeAvailability, AvailabilityStatus, TimeBlock } from '../types';
-import { Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Trash2, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
@@ -100,9 +101,22 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
     const [formData, setFormData] = useState(getInitialState);
     const [error, setError] = useState<string | null>(null);
     const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>('available');
+    const [isShiftLocked, setIsShiftLocked] = useState(false);
+
+    const isNew = !shift;
+    const today = useMemo(() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, []);
 
     useEffect(() => {
         setFormData(getInitialState());
+        if (shift) {
+            setIsShiftLocked(shift.endTime < new Date() || !!shift.actualStartTime);
+        } else {
+            setIsShiftLocked(false);
+        }
     }, [shift, selectedDate, employees, locations, departments]);
 
     useEffect(() => {
@@ -126,8 +140,15 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isShiftLocked) return;
+        
         const newStartTime = new Date(`${formData.startDate}T${formData.startTime}`);
         const newEndTime = new Date(`${formData.endDate}T${formData.endTime}`);
+
+        if (isNew && newStartTime < today) {
+            setError(t('modals.errorPastShift'));
+            return;
+        }
 
         if (newEndTime <= newStartTime) {
             setError(t('modals.errorEndTime'));
@@ -209,7 +230,7 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
             </div>
             <div className="flex space-x-2">
                 <button type="button" onClick={onCancel} className="btn-secondary">{t('modals.cancel')}</button>
-                <button type="submit" form="shift-editor-form" className="btn-primary">{t('modals.saveShift')}</button>
+                <button type="submit" form="shift-editor-form" className="btn-primary" disabled={isShiftLocked}>{t('modals.saveShift')}</button>
             </div>
         </div>
     );
@@ -224,6 +245,11 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
         <Modal isOpen={true} onClose={onCancel} title={title} footer={modalFooter}>
             <form id="shift-editor-form" onSubmit={handleSubmit} className="space-y-4">
                  {error && <p className="text-red-600 dark:text-red-400 text-sm bg-red-100 dark:bg-red-900/30 p-3 rounded-lg flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</p>}
+                 {isShiftLocked && (
+                    <p className="text-yellow-700 dark:text-yellow-300 text-sm bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg flex items-center">
+                        <Lock size={16} className="mr-2"/>{t('tooltips.shiftLocked')}
+                    </p>
+                 )}
                 <div>
                     <label htmlFor="employeeId" className="label-style">{t('modals.employeeLabel')}</label>
                     <select
@@ -232,6 +258,7 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                         value={formData.employeeId || ''}
                         onChange={handleChange}
                         className="input-style mt-1"
+                        disabled={isShiftLocked}
                     >
                         <option value="">{t('modals.unassignedShift')}</option>
                         {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
@@ -247,14 +274,14 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="locationId" className="label-style">{t('modals.locationLabel')}</label>
-                        <select id="locationId" name="locationId" value={formData.locationId} onChange={handleChange} className="input-style mt-1">
+                        <select id="locationId" name="locationId" value={formData.locationId} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked}>
                             <option value="">{t('modals.none')}</option>
                             {locations.map(loc => <option key={loc.id} value={loc.id}>{loc.name}</option>)}
                         </select>
                     </div>
                     <div>
                         <label htmlFor="departmentId" className="label-style">{t('modals.departmentLabel')}</label>
-                        <select id="departmentId" name="departmentId" value={formData.departmentId} onChange={handleChange} className="input-style mt-1">
+                        <select id="departmentId" name="departmentId" value={formData.departmentId} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked}>
                             <option value="">{t('modals.none')}</option>
                             {departments.map(dep => <option key={dep.id} value={dep.id}>{dep.name}</option>)}
                         </select>
@@ -264,22 +291,22 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="startDate" className="label-style">{t('modals.startDateLabel')}</label>
-                        <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="input-style mt-1" />
+                        <input type="date" id="startDate" name="startDate" value={formData.startDate} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked} min={isNew ? toInputDateString(today) : undefined} />
                     </div>
                     <div>
                         <label htmlFor="startTime" className="label-style">{t('modals.startTimeLabel')}</label>
-                        <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} className="input-style mt-1" />
+                        <input type="time" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="endDate" className="label-style">{t('modals.endDateLabel')}</label>
-                        <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="input-style mt-1" />
+                        <input type="date" id="endDate" name="endDate" value={formData.endDate} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked} min={formData.startDate} />
                     </div>
                     <div>
                         <label htmlFor="endTime" className="label-style">{t('modals.endTimeLabel')}</label>
-                        <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} className="input-style mt-1" />
+                        <input type="time" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} className="input-style mt-1" disabled={isShiftLocked} />
                     </div>
                 </div>
 
@@ -314,7 +341,8 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                     .dark .input-style { border-color: #475569; background-color: #1e293b; color: #f8fafc; }
                     .input-style:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4); }
                     .btn-primary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: white; background-color: #2563eb; transition: background-color 0.2s; }
-                    .btn-primary:hover { background-color: #1d4ed8; }
+                    .btn-primary:hover:not(:disabled) { background-color: #1d4ed8; }
+                    .btn-primary:disabled { background-color: #93c5fd; cursor: not-allowed; }
                     .btn-secondary { padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; color: #334155; background-color: #e2e8f0; }
                     .dark .btn-secondary { color: #e2e8f0; background-color: #334155; }
                     .btn-secondary:hover { background-color: #cbd5e1; }

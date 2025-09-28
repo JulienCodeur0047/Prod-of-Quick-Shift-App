@@ -484,7 +484,8 @@
     "errorNoEmployees": "Please select at least one staff member.",
     "errorNoDays": "Please select at least one day of the week.",
     "errorConflictTitle": "Scheduling Conflicts Found",
-    "errorConflictDesc": "The following shifts could not be created due to conflicts. Please resolve them and try again."
+    "errorConflictDesc": "The following shifts could not be created due to conflicts. Please resolve them and try again.",
+    "errorPastShift": "Cannot add shifts to past dates."
   },
   "gender": {
     "male": "Male",
@@ -514,7 +515,8 @@
     "proFeature": "Upgrade to a Pro plan to use this feature.",
     "employeeLimit": "Your plan's staff limit of {limit} has been reached. Upgrade to add more.",
     "employeeLimitFull": "Your current plan only allows up to {limit} staff. Please upgrade to add more.",
-    "proPlusFeature": "Upgrade to a Pro Plus plan to use this feature."
+    "proPlusFeature": "Upgrade to a Pro Plus plan to use this feature.",
+    "shiftLocked": "This shift is in the past or has been clocked and cannot be moved or edited."
   },
   "upgrade": {
     "dashboardTitle": "Dashboard is a Pro Feature",

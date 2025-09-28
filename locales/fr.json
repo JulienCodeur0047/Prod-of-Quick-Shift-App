@@ -484,7 +484,8 @@
     "errorNoEmployees": "Veuillez sélectionner au moins un membre du personnel.",
     "errorNoDays": "Veuillez sélectionner au moins un jour de la semaine.",
     "errorConflictTitle": "Conflits d'horaire détectés",
-    "errorConflictDesc": "Les shifts suivants n'ont pas pu être créés en raison de conflits. Veuillez les résoudre et réessayer."
+    "errorConflictDesc": "Les shifts suivants n'ont pas pu être créés en raison de conflits. Veuillez les résoudre et réessayer.",
+    "errorPastShift": "Impossible d'ajouter des shifts à des dates passées."
   },
   "gender": {
     "male": "Homme",
@@ -514,7 +515,8 @@
     "proFeature": "Passez à un plan Pro pour utiliser cette fonctionnalité.",
     "employeeLimit": "La limite de personnel de votre plan ({limit}) a été atteinte. Mettez à niveau pour en ajouter plus.",
     "employeeLimitFull": "Votre plan actuel ne permet que {limit} membres du personnel. Veuillez mettre à niveau pour en ajouter plus.",
-    "proPlusFeature": "Passez à un plan Pro Plus pour utiliser cette fonctionnalité."
+    "proPlusFeature": "Passez à un plan Pro Plus pour utiliser cette fonctionnalité.",
+    "shiftLocked": "Ce quart de travail est passé ou a été pointé et ne peut être ni déplacé ni modifié."
   },
   "upgrade": {
     "dashboardTitle": "Le Tableau de Bord est une Fonctionnalité Pro",
