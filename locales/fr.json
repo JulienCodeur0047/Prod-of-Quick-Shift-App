@@ -215,12 +215,15 @@
     "from": "du",
     "to": "au",
     "refusalReasonPlaceholder": "Motif du refus...",
+    "refusalReason": "Motif",
     "validate": "Valider",
     "refuse": "Refuser",
     "followUp": "Marquer pour suivi",
     "statusValidated": "Approuvée",
     "statusRefused": "Refusée",
-    "statusFollowedup": "Suivi"
+    "statusFollowedup": "Suivi",
+    "statusPending": "En attente",
+    "statusNotYetFollowed": "Pas encore suivi"
   },
   "landingPage": {
     "navFeatures": "Fonctionnalités",

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { Shift, AbsenceType, Location, Department } from '../types';
+import { Shift, AbsenceType, Location, Department, InboxMessage } from '../types';
 import * as api from '../services/api';
 import { useMobileAuth } from './MobileAuthContext';
 
@@ -8,6 +8,7 @@ interface MobileDataContextType {
     absenceTypes: AbsenceType[];
     locations: Location[];
     departments: Department[];
+    inboxMessages: InboxMessage[];
     isLoading: boolean;
     error: string | null;
     refetchData: () => void;
@@ -23,6 +24,7 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
     const [absenceTypes, setAbsenceTypes] = useState<AbsenceType[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
+    const [inboxMessages, setInboxMessages] = useState<InboxMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +39,7 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
             setAbsenceTypes(data.absenceTypes);
             setLocations(data.locations);
             setDepartments(data.departments);
+            setInboxMessages(data.inboxMessages);
         } catch (err) {
             console.error(err);
             setError("Failed to load schedule data.");
@@ -58,6 +61,8 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
                 companyId: employee.companyId,
             };
             await api.apiSubmitRequest(dataToSend);
+            // After submitting, refetch data to show the new request in history
+            fetchData();
             return true;
         } catch (error) {
             console.error("Failed to submit request", error);
@@ -89,6 +94,7 @@ export const MobileDataProvider: React.FC<{ children: ReactNode }> = ({ children
         absenceTypes,
         locations,
         departments,
+        inboxMessages,
         isLoading,
         error,
         refetchData: fetchData,

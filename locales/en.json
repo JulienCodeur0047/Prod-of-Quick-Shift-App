@@ -215,12 +215,15 @@
     "from": "from",
     "to": "to",
     "refusalReasonPlaceholder": "Reason for refusal...",
+    "refusalReason": "Reason",
     "validate": "Validate",
     "refuse": "Refuse",
     "followUp": "Mark for Follow-up",
     "statusValidated": "Approved",
     "statusRefused": "Refused",
-    "statusFollowedup": "Follow-up"
+    "statusFollowedup": "Follow-up",
+    "statusPending": "Pending",
+    "statusNotYetFollowed": "Not yet followed up"
   },
   "landingPage": {
     "navFeatures": "Features",

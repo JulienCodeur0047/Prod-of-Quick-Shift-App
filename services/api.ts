@@ -321,7 +321,7 @@ export const apiLoginEmployee = async (email: string, accessCode: string): Promi
     }
 };
 
-export const apiGetMobileData = async (employeeId: string, companyId: string): Promise<{ shifts: Shift[], absenceTypes: AbsenceType[], locations: Location[], departments: Department[] }> => {
+export const apiGetMobileData = async (employeeId: string, companyId: string): Promise<{ shifts: Shift[], absenceTypes: AbsenceType[], locations: Location[], departments: Department[], inboxMessages: InboxMessage[] }> => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -343,22 +343,30 @@ export const apiGetMobileData = async (employeeId: string, companyId: string): P
         const departmentsQuery = db.collection('departments')
             .where('companyId', '==', companyId);
 
-        const [shiftsSnapshot, absenceTypesSnapshot, locationsSnapshot, departmentsSnapshot] = await Promise.all([
+        const inboxMessagesQuery = db.collection('inboxMessages')
+            .where('companyId', '==', companyId)
+            .where('employeeId', '==', employeeId)
+            .orderBy('date', 'desc')
+            .limit(10);
+
+        const [shiftsSnapshot, absenceTypesSnapshot, locationsSnapshot, departmentsSnapshot, inboxMessagesSnapshot] = await Promise.all([
             shiftsQuery.get(),
             absenceTypesQuery.get(),
             locationsQuery.get(),
-            departmentsQuery.get()
+            departmentsQuery.get(),
+            inboxMessagesQuery.get(),
         ]);
         
         const shifts = shiftsSnapshot.docs.map(docWithId);
         const absenceTypes = absenceTypesSnapshot.docs.map(docWithId);
         const locations = locationsSnapshot.docs.map(docWithId);
         const departments = departmentsSnapshot.docs.map(docWithId);
+        const inboxMessages = inboxMessagesSnapshot.docs.map(docWithId);
 
-        return { shifts, absenceTypes, locations, departments };
+        return { shifts, absenceTypes, locations, departments, inboxMessages };
     } catch (error) {
         console.error("Error fetching mobile data:", error);
-        return { shifts: [], absenceTypes: [], locations: [], departments: [] };
+        return { shifts: [], absenceTypes: [], locations: [], departments: [], inboxMessages: [] };
     }
 };
 

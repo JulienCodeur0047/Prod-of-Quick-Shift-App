@@ -279,7 +279,13 @@ export const DataProvider: React.FC<{children: ReactNode}> = ({ children }) => {
         alert('Absence request approved and added to the schedule.');
     };
     
-    const handleRefuseRequest = (messageId: string, reason: string) => handleSaveItem('inboxMessages', { ...state.inboxMessages.find(m=>m.id===messageId)!, status: 'refused' });
+    // FIX: Make the function async and await the handleSaveItem call to match the required Promise<void> return type.
+    const handleRefuseRequest = async (messageId: string, reason: string) => {
+        const message = state.inboxMessages.find(m => m.id === messageId);
+        if (!message) return;
+        const updatedMessage = { ...message, status: 'refused' as const, refusalReason: reason };
+        await handleSaveItem('inboxMessages', updatedMessage);
+    };
     const handleFollowUpComplaint = (messageId: string) => handleSaveItem('inboxMessages', { ...state.inboxMessages.find(m=>m.id===messageId)!, status: 'followed-up' });
 
     const handleSaveEmployeeAvailability = (employeeId: string, availability: WeeklyAvailability) => handleSaveItem('employeeAvailabilities', { id: employeeId, employeeId, availability, companyId: user!.companyId });

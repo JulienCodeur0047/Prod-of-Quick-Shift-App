@@ -121,6 +121,12 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, employee, absenceTyp
                     ) : (
                         <div className="mt-2">
                             <StatusBadge status={message.status} />
+                            {message.status === 'refused' && message.refusalReason && (
+                                <div className="mt-1 p-2 bg-red-50 dark:bg-red-900/20 rounded-md text-xs">
+                                    <p className="font-semibold text-red-800 dark:text-red-300">{t('inbox.refusalReason')}:</p>
+                                    <p className="text-red-700 dark:text-red-400">{message.refusalReason}</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -135,6 +135,7 @@ export interface InboxMessage {
   absenceTypeId?: string;
   startDate?: Date;
   endDate?: Date;
+  refusalReason?: string;
   companyId: string;
 }
 
