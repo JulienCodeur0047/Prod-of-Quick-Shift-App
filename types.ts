@@ -155,3 +155,5 @@ export interface EmployeeAvailability {
     availability: WeeklyAvailability;
     companyId: string;
 }
+
+export type ClockingStatus = 'present' | 'absent' | 'not-clocked-in' | 'future';

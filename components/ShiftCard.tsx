@@ -1,6 +1,7 @@
 
+
 import React from 'react';
-import { Shift, Employee, Location, Department } from '../types';
+import { Shift, Employee, Location, Department, ClockingStatus } from '../types';
 import Avatar from './Avatar';
 import { Trash2, MapPin, Briefcase, UserPlus, Lock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -18,6 +19,7 @@ interface ShiftCardProps {
     onToggleSelect: (shiftId: string) => void;
     zoomLevel: number; // 0: compact, 1: default, 2: detailed
     isLocked: boolean;
+    clockingStatus?: ClockingStatus;
 }
 
 const roleBorderColors: { [key: string]: string } = {
@@ -40,7 +42,7 @@ const getShortFirstName = (name: string): string => {
   return name.split(' ')[0];
 };
 
-const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel, isLocked }) => {
+const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, department, onDragStart, onClick, onDelete, isSelectionModeActive, isSelected, onToggleSelect, zoomLevel, isLocked, clockingStatus }) => {
     const { t } = useLanguage();
     const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     
@@ -61,6 +63,29 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
     }
 
     const shiftTimeTitle = `${formatTime(shift.startTime)} - ${formatTime(shift.endTime)}`;
+
+    const StatusIndicator = () => {
+        if (!clockingStatus || clockingStatus === 'future') return null;
+
+        const statusInfo: { color: string; tooltip: string; } | undefined = {
+            'present': { color: 'bg-green-500', tooltip: t('tooltips.statusPresent') },
+            'absent': { color: 'bg-yellow-500', tooltip: t('tooltips.statusAbsent') },
+            'not-clocked-in': { color: 'bg-red-500', tooltip: t('tooltips.statusNotClockedIn') },
+        }[clockingStatus];
+
+        if (!statusInfo) return null;
+
+        if (zoomLevel === 0) {
+            return (
+                <span title={statusInfo.tooltip} className={`absolute top-1 left-1 w-2 h-2 rounded-full ${statusInfo.color}`} />
+            );
+        }
+
+        const positionClasses = isSelectionModeActive ? 'top-2 right-8' : 'top-2 right-2';
+        return (
+            <span title={statusInfo.tooltip} className={`absolute ${positionClasses} w-3 h-3 rounded-full ${statusInfo.color} border-2 border-white dark:border-blue-night-800`} />
+        );
+    };
     
     // --- COMPACT VIEW (level 0) ---
     if (zoomLevel === 0) {
@@ -71,11 +96,12 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
                 onDragStart={(e) => onDragStart(e, shift.id)}
                 onClick={handleCardClick} 
                 title={title} 
-                className={`transition-all duration-300 ease-in-out ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab'}`}
+                className={`transition-all duration-300 ease-in-out relative ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab'}`}
             >
                 {employee ? (
                     <div className={`h-6 rounded flex items-center justify-between px-1.5 text-white ${roleBgColors[employee.role] || 'bg-gray-500'} overflow-hidden`}>
-                        <span className="text-[11px] font-bold truncate">{getShortFirstName(employee.name)}</span>
+                        <StatusIndicator />
+                        <span className={`text-[11px] font-bold truncate ${clockingStatus && clockingStatus !== 'future' ? 'pl-2' : ''}`}>{getShortFirstName(employee.name)}</span>
                         <span className="text-[10px] font-mono truncate">{shiftTimeTitle}</span>
                     </div>
                 ) : (
@@ -147,6 +173,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({ shift, employee, location, depart
             onClick={handleCardClick}
             className={`rounded-lg mb-2 border-l-4 group relative ${borderColorClass} ${isSelected ? 'bg-blue-200 dark:bg-blue-night-700' : 'bg-white dark:bg-blue-night-800'} shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 ${zoomLevel === 1 ? 'p-2' : 'p-3'} ${isLocked ? 'cursor-default opacity-70' : 'cursor-grab active:cursor-grabbing'}`}
         >
+            <StatusIndicator />
             {isSelectionModeActive && (
                 <input 
                     type="checkbox"

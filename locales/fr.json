@@ -516,7 +516,10 @@
     "employeeLimit": "La limite de personnel de votre plan ({limit}) a été atteinte. Mettez à niveau pour en ajouter plus.",
     "employeeLimitFull": "Votre plan actuel ne permet que {limit} membres du personnel. Veuillez mettre à niveau pour en ajouter plus.",
     "proPlusFeature": "Passez à un plan Pro Plus pour utiliser cette fonctionnalité.",
-    "shiftLocked": "Ce quart de travail est passé ou a été pointé et ne peut être ni déplacé ni modifié."
+    "shiftLocked": "Ce quart de travail est passé ou a été pointé et ne peut être ni déplacé ni modifié.",
+    "statusPresent": "Pointé / Terminé",
+    "statusAbsent": "Membre du personnel absent",
+    "statusNotClockedIn": "Shift commencé - Non pointé"
   },
   "upgrade": {
     "dashboardTitle": "Le Tableau de Bord est une Fonctionnalité Pro",

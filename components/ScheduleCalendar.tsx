@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Shift, Employee, Role, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, EmployeeAvailability } from '../types';
+import { Shift, Employee, Role, Location, Department, Absence, AbsenceType, SpecialDay, SpecialDayType, EmployeeAvailability, ClockingStatus } from '../types';
 import ShiftCard from './ShiftCard';
 import AbsenceCard from './AbsenceCard';
 import Modal from './Modal';
@@ -105,7 +105,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         onSaveSpecialDay, onDeleteSpecialDay, onBulkAddShifts
     } = props;
     
-    const { permissions } = useAuth();
+    const { user, permissions } = useAuth();
     const { t, language } = useLanguage();
     const { theme } = useTheme();
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -145,7 +145,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
             // Always include open shifts, they are filtered out later if needed but should bypass employee filters
             if (!shift.employeeId) return true;
 
-            // FIX: Explicitly type the employee object from the map to resolve type errors.
             const employee: Employee | undefined = employeeMap.get(shift.employeeId);
             if (!employee) return false;
 
@@ -157,7 +156,6 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
         });
         
         const filteredAbsences = absences.filter(absence => {
-            // FIX: Explicitly type the employee object from the map to resolve type errors.
             const employee: Employee | undefined = employeeMap.get(absence.employeeId);
             if (!employee) return false;
 
@@ -320,6 +318,24 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
             return shiftEditorState.shift.employeeId ? t('schedule.editShift') : t('schedule.assignShift');
         }
         return t('schedule.addShiftTitle');
+    };
+
+    const getClockingStatus = (shift: Shift): ClockingStatus => {
+        if (user?.plan !== 'Pro Plus' || !shift.employeeId) {
+            return 'future';
+        }
+
+        const now = new Date();
+        const employeeAbsence = filteredCalendarItems.absences.find(a =>
+            a.employeeId === shift.employeeId &&
+            isDateBetween(shift.startTime, a.startDate, a.endDate)
+        );
+
+        if (employeeAbsence) return 'absent';
+        if (shift.actualStartTime) return 'present';
+        if (new Date(shift.startTime) < now && !shift.actualStartTime) return 'not-clocked-in';
+
+        return 'future';
     };
 
     const HeaderDisplay = () => {
@@ -553,7 +569,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                                                 className={`transition-opacity duration-300 ${draggedShiftId === shift.id ? 'opacity-30' : 'opacity-100'}`}
                                                 data-tour-id={firstShiftTargetInfo && isSameDay(day, firstShiftTargetInfo.day) && shift.id === firstShiftTargetInfo.shiftId ? 'schedule-drag-shift' : undefined}
                                             >
-                                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} isLocked={isLocked || isShiftLocked} />
+                                                <ShiftCard shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={handleDragStart} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={isSelectionModeActive} isSelected={selectedShiftIds.includes(shift.id)} onToggleSelect={toggleShiftSelection} zoomLevel={zoomLevel} isLocked={isLocked || isShiftLocked} clockingStatus={getClockingStatus(shift)} />
                                             </div>
                                         )
                                     })}
@@ -660,7 +676,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                             })}
                             {filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).sort((a,b)=>a.startTime.getTime() - b.startTime.getTime()).map(shift => {
                                 const isShiftLocked = shift.endTime < new Date() || !!shift.actualStartTime;
-                                return <ShiftCard key={shift.id} shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} isLocked={isLocked || isShiftLocked}/>
+                                return <ShiftCard key={shift.id} shift={shift} employee={employees.find(e => e.id === shift.employeeId)} location={locations.find(l => l.id === shift.locationId)} department={departments.find(d => d.id === shift.departmentId)} onDragStart={()=>{}} onClick={() => openEditShiftModal(shift)} onDelete={handleShiftDelete} isSelectionModeActive={false} isSelected={false} onToggleSelect={()=>{}} zoomLevel={2} isLocked={isLocked || isShiftLocked} clockingStatus={getClockingStatus(shift)} />
                             })}
                              {(filteredCalendarItems.shifts.filter(s => isSameDay(s.startTime, dayDetailModal.date!)).length === 0 &&
                                filteredCalendarItems.absences.filter(a => isDateBetween(dayDetailModal.date!, a.startDate, a.endDate)).length === 0) &&

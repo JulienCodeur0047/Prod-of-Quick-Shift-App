@@ -516,7 +516,10 @@
     "employeeLimit": "Your plan's staff limit of {limit} has been reached. Upgrade to add more.",
     "employeeLimitFull": "Your current plan only allows up to {limit} staff. Please upgrade to add more.",
     "proPlusFeature": "Upgrade to a Pro Plus plan to use this feature.",
-    "shiftLocked": "This shift is in the past or has been clocked and cannot be moved or edited."
+    "shiftLocked": "This shift is in the past or has been clocked and cannot be moved or edited.",
+    "statusPresent": "Pointé / Terminé",
+    "statusAbsent": "Membre du personnel absent",
+    "statusNotClockedIn": "Shift commencé - Non pointé"
   },
   "upgrade": {
     "dashboardTitle": "Dashboard is a Pro Feature",
