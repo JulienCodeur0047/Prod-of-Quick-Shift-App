@@ -98,8 +98,8 @@ const BulkShiftEditor: React.FC<BulkShiftEditorProps> = (props) => {
             setIsSaving(false);
             return;
         }
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        const start = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T00:00:00');
         if (end < start) {
             setError(t('modals.errorEndDate'));
             setIsSaving(false);

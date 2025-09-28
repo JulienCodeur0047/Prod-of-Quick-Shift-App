@@ -55,9 +55,8 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = (props) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const newStartDate = new Date(formData.startDate);
-        newStartDate.setHours(0,0,0,0);
-        const newEndDate = new Date(formData.endDate);
+        const newStartDate = new Date(formData.startDate + 'T00:00:00');
+        const newEndDate = new Date(formData.endDate + 'T00:00:00');
         newEndDate.setHours(23,59,59,999);
 
         if (newEndDate < newStartDate) {

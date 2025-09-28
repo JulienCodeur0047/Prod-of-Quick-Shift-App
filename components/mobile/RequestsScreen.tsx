@@ -6,7 +6,12 @@ import Modal from '../Modal';
 import LanguageSwitcher from '../LanguageSwitcher';
 import ThemeToggle from '../ThemeToggle';
 
-const toInputDateString = (date: Date) => date.toISOString().split('T')[0];
+const toInputDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const RequestsScreen: React.FC = () => {
     const { t } = useLanguage();
@@ -30,13 +35,15 @@ const RequestsScreen: React.FC = () => {
     const handleAbsenceSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        const endDateObj = new Date(absenceData.endDate + 'T00:00:00');
+        endDateObj.setHours(23, 59, 59, 999);
         const success = await submitRequest({
             type: 'absence-request',
             subject: `Absence Request: ${absenceTypes.find(at => at.id === absenceData.absenceTypeId)?.name || 'Unknown'}`,
             body: absenceData.body,
             absenceTypeId: absenceData.absenceTypeId,
-            startDate: new Date(absenceData.startDate),
-            endDate: new Date(absenceData.endDate),
+            startDate: new Date(absenceData.startDate + 'T00:00:00'),
+            endDate: endDateObj,
         });
         setIsLoading(false);
         if (success) {
