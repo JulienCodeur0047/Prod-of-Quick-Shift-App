@@ -1,3 +1,4 @@
+
 {
   "appName": "Quick Shift",
   "sidebar": {
@@ -490,7 +491,9 @@
     "unplannedExit": "Sortie Imprévue",
     "unplannedExitConfirm": "Êtes-vous sûr de vouloir pointer la sortie de cet employé maintenant ? Cette action est irréversible.",
     "autoClockOutInfo": "Les oublis de pointage sont corrigés automatiquement 30 minutes après le shift.",
-    "errorShiftConflict": "Ce membre du personnel a un shift qui se chevauche de {startTime} à {endTime}."
+    "errorShiftConflict": "Ce membre du personnel a un shift qui se chevauche de {startTime} à {endTime}.",
+    "errorFileSize": "Le fichier est trop volumineux. Veuillez sélectionner une image de moins de 5 Mo.",
+    "errorFileProcess": "Impossible de traiter l'image sélectionnée. Veuillez en essayer une autre."
   },
   "gender": {
     "male": "Homme",

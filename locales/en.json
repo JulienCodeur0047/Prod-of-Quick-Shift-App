@@ -1,3 +1,4 @@
+
 {
   "appName": "Quick Shift",
   "sidebar": {
@@ -490,7 +491,9 @@
     "unplannedExit": "Unplanned Exit",
     "unplannedExitConfirm": "Are you sure you want to clock out this employee now? This action cannot be undone.",
     "autoClockOutInfo": "Staff who forget to clock out are automatically clocked out 30 minutes after their shift.",
-    "errorShiftConflict": "This staff member has an overlapping shift from {startTime} to {endTime}."
+    "errorShiftConflict": "This staff member has an overlapping shift from {startTime} to {endTime}.",
+    "errorFileSize": "File is too large. Please select an image under 5MB.",
+    "errorFileProcess": "Could not process the selected image. Please try another one."
   },
   "gender": {
     "male": "Male",

@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Employee, Role, EmployeeAvailability, WeeklyAvailability } from '../types';
-import { Trash2, Upload, KeyRound, RefreshCw } from 'lucide-react';
+import { Trash2, Upload, KeyRound, RefreshCw, AlertTriangle } from 'lucide-react';
 import Modal from './Modal';
 import Avatar from './Avatar';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -31,6 +32,42 @@ const getInitialFormData = (employee: Employee | null, roles: Role[]): Partial<E
     accessCode: employee?.accessCode || '',
 });
 
+const resizeImage = (file: File, maxWidth: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target?.result as string;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    return reject(new Error('Could not get canvas context'));
+                }
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Get the data URL from the canvas as a JPEG with quality 0.8
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                resolve(dataUrl);
+            };
+            img.onerror = (error) => reject(error);
+        };
+        reader.onerror = (error) => reject(error);
+    });
+};
+
 const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave, onClose, onDelete, employeeAvailability, onSaveAvailability, onRegenerateAccessCode }) => {
     const { t } = useLanguage();
     const { user } = useAuth();
@@ -55,14 +92,22 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prevFormData => ({ ...prevFormData, avatarUrl: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+            // Add a simple file size check before processing
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                setError(t('modals.errorFileSize'));
+                return;
+            }
+            try {
+                const resizedDataUrl = await resizeImage(file, 256); // Resize to 256px width
+                setFormData(prevFormData => ({ ...prevFormData, avatarUrl: resizedDataUrl }));
+                setError(''); // Clear any previous errors
+            } catch (error) {
+                console.error("Failed to resize image:", error);
+                setError(t('modals.errorFileProcess'));
+            }
         }
     };
     
@@ -145,7 +190,7 @@ const EmployeeEditor: React.FC<EmployeeEditorProps> = ({ employee, roles, onSave
             
             {activeTab === 'details' && (
                 <form id="employee-editor-form" onSubmit={handleSubmit} className="space-y-4">
-                    {error && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
+                    {error && <p className="text-red-500 text-sm bg-red-100 dark:bg-red-900/30 p-3 rounded-lg flex items-center"><AlertTriangle size={16} className="mr-2"/>{error}</p>}
                     
                     <div className="flex flex-col items-center space-y-2">
                         <div className="relative">
