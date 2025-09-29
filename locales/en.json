@@ -208,7 +208,15 @@
     "accessCode": "Access Code",
     "accessCodeDescription": "6-digit code for staff to log in to the mobile app.",
     "regenerateCode": "Regenerate",
-    "confirmRegenerateCode": "Are you sure you want to generate a new access code for {name}? The old code will no longer work."
+    "confirmRegenerateCode": "Are you sure you want to generate a new access code for {name}? The old code will no longer work.",
+    "manageSubscription": "Manage Subscription",
+    "upgradeToPro": "Upgrade to Pro",
+    "logout": "Log Out",
+    "manageSubscriptionAlert": "In a real application, this would redirect to a Stripe customer portal to manage billing.",
+    "illustrationTitle": "Elevate Your Management",
+    "illustrationDesc": "Unlock powerful features and streamline your workflow by upgrading your plan.",
+    "dangerZone": "Danger Zone",
+    "dangerZoneDesc": "Be careful, this action is permanent."
   },
   "inbox": {
     "emptyTitle": "Your inbox is empty",

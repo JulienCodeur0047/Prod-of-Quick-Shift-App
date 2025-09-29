@@ -208,7 +208,15 @@
     "accessCode": "Code d'accès",
     "accessCodeDescription": "Code à 6 chiffres pour que le personnel se connecte à l'application mobile.",
     "regenerateCode": "Régénérer",
-    "confirmRegenerateCode": "Êtes-vous sûr de vouloir générer un nouveau code d'accès pour {name} ? L'ancien code ne fonctionnera plus."
+    "confirmRegenerateCode": "Êtes-vous sûr de vouloir générer un nouveau code d'accès pour {name} ? L'ancien code ne fonctionnera plus.",
+    "manageSubscription": "Gérer l'abonnement",
+    "upgradeToPro": "Passer à Pro",
+    "logout": "Se déconnecter",
+    "manageSubscriptionAlert": "Dans une application réelle, cela redirigerait vers un portail client Stripe pour gérer la facturation.",
+    "illustrationTitle": "Améliorez Votre Gestion",
+    "illustrationDesc": "Débloquez des fonctionnalités puissantes et optimisez votre flux de travail en mettant à niveau votre plan.",
+    "dangerZone": "Zone de Danger",
+    "dangerZoneDesc": "Attention, cette action est permanente."
   },
   "inbox": {
     "emptyTitle": "Votre boîte de réception est vide",
