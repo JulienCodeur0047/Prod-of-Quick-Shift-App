@@ -76,7 +76,8 @@
     "lock": "Verrouiller le planning pour empêcher les modifications",
     "unlock": "Déverrouiller le planning pour autoriser les modifications",
     "locked": "Verrouillé",
-    "unlocked": "Déverrouillé"
+    "unlocked": "Déverrouillé",
+    "errorShiftConflictAlert": "Impossible de déplacer le shift. Ce membre du personnel a un shift qui se chevauche à cette heure."
   },
   "employees": {
     "title": "Personnel",
@@ -488,7 +489,8 @@
     "errorPastShift": "Impossible d'ajouter des shifts à des dates passées.",
     "unplannedExit": "Sortie Imprévue",
     "unplannedExitConfirm": "Êtes-vous sûr de vouloir pointer la sortie de cet employé maintenant ? Cette action est irréversible.",
-    "autoClockOutInfo": "Les oublis de pointage sont corrigés automatiquement 30 minutes après le shift."
+    "autoClockOutInfo": "Les oublis de pointage sont corrigés automatiquement 30 minutes après le shift.",
+    "errorShiftConflict": "Ce membre du personnel a un shift qui se chevauche de {startTime} à {endTime}."
   },
   "gender": {
     "male": "Homme",

@@ -12,6 +12,7 @@ interface ShiftEditorProps {
     locations: Location[];
     departments: Department[];
     selectedDate: Date | null;
+    allShifts: Shift[];
     allAbsences: Absence[];
     absenceTypes: AbsenceType[];
     allSpecialDays: SpecialDay[];
@@ -72,7 +73,7 @@ const getAvailabilityForShift = (employeeId: string, startTime: Date, endTime: D
 
 const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
     const { 
-        shift, employees, locations, departments, selectedDate, allAbsences, absenceTypes,
+        shift, employees, locations, departments, selectedDate, allShifts, allAbsences, absenceTypes,
         allSpecialDays, allSpecialDayTypes, allEmployeeAvailabilities, onSave, onCancel, onDelete 
     } = props;
     const { t } = useLanguage();
@@ -180,6 +181,28 @@ const ShiftEditor: React.FC<ShiftEditorProps> = (props) => {
                 setError(t('modals.errorAbsenceConflict', { absenceName }));
                 return;
             }
+
+            // Shift overlap conflict
+            const conflictingShift = allShifts.find(s => {
+                if (s.id === shift?.id) return false; // Don't compare with self
+                if (s.employeeId !== formData.employeeId) return false;
+
+                const existingStartTime = new Date(s.startTime);
+                const existingEndTime = new Date(s.endTime);
+
+                // Overlap condition: (StartA < EndB) and (EndA > StartB)
+                return newStartTime < existingEndTime && newEndTime > existingStartTime;
+            });
+
+            if (conflictingShift) {
+                const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                setError(t('modals.errorShiftConflict', { 
+                    startTime: formatTime(conflictingShift.startTime), 
+                    endTime: formatTime(conflictingShift.endTime) 
+                }));
+                return;
+            }
+
             // Availability conflict
             const currentAvailability = getAvailabilityForShift(formData.employeeId, newStartTime, newEndTime, allEmployeeAvailabilities);
             if(currentAvailability === 'unavailable') {

@@ -76,7 +76,8 @@
     "lock": "Lock schedule to prevent changes",
     "unlock": "Unlock schedule to allow changes",
     "locked": "Locked",
-    "unlocked": "Unlocked"
+    "unlocked": "Unlocked",
+    "errorShiftConflictAlert": "Cannot move shift. This staff member has an overlapping shift at this time."
   },
   "employees": {
     "title": "Staff",
@@ -488,7 +489,8 @@
     "errorPastShift": "Cannot add shifts to past dates.",
     "unplannedExit": "Unplanned Exit",
     "unplannedExitConfirm": "Are you sure you want to clock out this employee now? This action cannot be undone.",
-    "autoClockOutInfo": "Staff who forget to clock out are automatically clocked out 30 minutes after their shift."
+    "autoClockOutInfo": "Staff who forget to clock out are automatically clocked out 30 minutes after their shift.",
+    "errorShiftConflict": "This staff member has an overlapping shift from {startTime} to {endTime}."
   },
   "gender": {
     "male": "Male",

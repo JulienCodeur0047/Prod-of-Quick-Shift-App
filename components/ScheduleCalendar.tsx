@@ -213,6 +213,8 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     
     const handleDrop = (e: React.DragEvent<HTMLDivElement>, day: Date) => {
         e.preventDefault();
+        setDragOverDate(null);
+        setDraggedShiftId(null);
         if (isLocked) return;
         const shiftId = e.dataTransfer.getData('shiftId');
         if (!shiftId) return;
@@ -228,34 +230,45 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
     
         if (holidayOnDay) {
             alert("Cannot move shift to a holiday.");
-            setDragOverDate(null);
-            setDraggedShiftId(null);
             return;
         }
     
+        // Calculate new times once for all checks
+        const duration = originalShift.endTime.getTime() - originalShift.startTime.getTime();
+        const newStartTime = new Date(day);
+        newStartTime.setHours(originalShift.startTime.getHours(), originalShift.startTime.getMinutes(), originalShift.startTime.getSeconds(), originalShift.startTime.getMilliseconds());
+        const newEndTime = new Date(newStartTime.getTime() + duration);
+
         if (originalShift.employeeId) {
+            // Absence conflict
             const hasAbsenceConflict = absences.some(absence => 
                 absence.employeeId === originalShift.employeeId && isDateBetween(day, absence.startDate, absence.endDate)
             );
             if (hasAbsenceConflict) {
                 alert("Cannot move shift to a day where the employee is absent.");
-                setDragOverDate(null);
-                setDraggedShiftId(null);
+                return;
+            }
+
+            // Overlapping shift conflict
+            const hasOverlap = shifts.some(s => {
+                if (s.id === originalShift.id) return false; // Don't compare with self
+                if (s.employeeId !== originalShift.employeeId) return false;
+        
+                const existingStartTime = new Date(s.startTime);
+                const existingEndTime = new Date(s.endTime);
+        
+                return newStartTime < existingEndTime && newEndTime > existingStartTime;
+            });
+
+            if (hasOverlap) {
+                alert(t('schedule.errorShiftConflictAlert'));
                 return;
             }
         }
     
         // --- Update Shift ---
-        const duration = originalShift.endTime.getTime() - originalShift.startTime.getTime();
-        const newStartTime = new Date(day);
-        newStartTime.setHours(originalShift.startTime.getHours(), originalShift.startTime.getMinutes(), originalShift.startTime.getSeconds(), originalShift.startTime.getMilliseconds());
-        const newEndTime = new Date(newStartTime.getTime() + duration);
         const updatedShift = { ...originalShift, startTime: newStartTime, endTime: newEndTime };
-
         onSaveShift(updatedShift);
-    
-        setDragOverDate(null);
-        setDraggedShiftId(null);
     };
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, shiftId: string) => {
@@ -636,6 +649,7 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = (props) => {
                     allSpecialDays={specialDays}
                     allSpecialDayTypes={specialDayTypes}
                     allEmployeeAvailabilities={employeeAvailabilities}
+                    allShifts={shifts}
                 />
             )}
              {absenceEditorState.isOpen && (
