@@ -101,6 +101,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     });
     const infoButtonRef = useRef<HTMLButtonElement>(null);
     const infoPopoverRef = useRef<HTMLDivElement>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
 
     useEffect(() => {
@@ -127,6 +128,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         setShowConfirmPassword(false);
         setInfoPopoverVisible(false);
         setPasswordValidity({ length: false, uppercase: false, number: false, special: false });
+        setIsProcessing(false);
 
     }, [authView, isOpen]);
 
@@ -163,36 +165,57 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const result = await login(email, password);
-        if (!result.success) {
-            if (result.reason === 'unverified') {
-                setError(t('auth.unverified'));
+        setIsProcessing(true);
+        try {
+            const result = await login(email, password);
+            if (!result.success) {
+                if (result.reason === 'unverified') {
+                    setError(t('auth.unverified'));
+                } else {
+                    setError(t('auth.invalidCredentials'));
+                }
+                setIsProcessing(false);
             } else {
-                setError(t('auth.invalidCredentials'));
+                onClose();
             }
-        } else {
-            onClose();
+        } catch (err) {
+            setError(t('auth.invalidCredentials'));
+            setIsProcessing(false);
         }
     };
 
     const handleGoogleLogin = async () => {
         setError('');
-        const result = await loginWithGoogle();
-        if (result.success) {
-            onClose();
-        } else {
+        setIsProcessing(true);
+        try {
+            const result = await loginWithGoogle();
+            if (result.success) {
+                onClose();
+            } else {
+                setError(t('auth.googleLoginFailed'));
+                setIsProcessing(false);
+            }
+        } catch (err) {
             setError(t('auth.googleLoginFailed'));
+            setIsProcessing(false);
         }
     };
     
     const handleForgotPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const result = await forgotPassword(email);
-        if (result.success) {
-            setAuthView('forgotPasswordSuccess');
-        } else {
-            setError(t(result.messageKey));
+        setIsProcessing(true);
+        try {
+            const result = await forgotPassword(email);
+            if (result.success) {
+                setAuthView('forgotPasswordSuccess');
+            } else {
+                setError(t(result.messageKey));
+            }
+        } catch(err) {
+            setError(t('auth.invalidCredentials'));
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -216,6 +239,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
             return;
         }
 
+        setIsProcessing(true);
+
         const currentRegistrationData = {
             name,
             email,
@@ -229,15 +254,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
         if (plan !== 'Gratuit') {
             setRegistrationData({ userData: currentRegistrationData, password });
             setAuthView('payment');
+            setIsProcessing(false);
             return;
         }
 
-        const success = await register(currentRegistrationData, password, 0);
-        if (!success) {
+        try {
+            const success = await register(currentRegistrationData, password, 0);
+            if (!success) {
+                setError(t('auth.emailExists'));
+                setIsProcessing(false);
+            } else {
+                setRegisteredEmail(email);
+                setAuthView('registerSuccess');
+            }
+        } catch (err) {
             setError(t('auth.emailExists'));
-        } else {
-            setRegisteredEmail(email);
-            setAuthView('registerSuccess');
+            setIsProcessing(false);
         }
     };
 
@@ -285,7 +317,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
     const selectedPlanDetails = planDetails[plan];
     const selectedPlanFeatures = Array.from({ length: selectedPlanDetails.featureCount }, (_, i) => t(`pricing.${selectedPlanDetails.key}Feature${i + 1}`));
 
-    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-lg transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed";
+    const buttonPrimaryClasses = "w-full py-2.5 px-5 bg-blue-600 text-white font-semibold rounded-lg transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed flex justify-center items-center";
 
     const PaymentView = () => {
         const { t } = useLanguage();
@@ -386,18 +418,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                         <form onSubmit={handleLogin} className="space-y-4 flex-grow flex flex-col justify-center">
                             <div>
                                 <label htmlFor="login-email" className="label-style">{t('auth.emailLabel')}</label>
-                                <input id="login-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
+                                <input id="login-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" disabled={isProcessing}/>
                             </div>
                             <div>
                                 <label htmlFor="login-password" className="label-style">{t('auth.passwordLabel')}</label>
-                                <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" />
+                                <input id="login-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="input-style" disabled={isProcessing}/>
                             </div>
                              <div className="text-right">
                                 <a href="#" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400" onClick={(e) => {e.preventDefault(); setAuthView('forgotPassword');}}>
                                     {t('auth.forgotPassword')}
                                 </a>
                             </div>
-                            <button type="submit" className={buttonPrimaryClasses}>{t('auth.signIn')}</button>
+                            <button type="submit" className={buttonPrimaryClasses} disabled={isProcessing}>
+                                {isProcessing ? <Loader2 className="animate-spin" /> : t('auth.signIn')}
+                            </button>
                             
                             <div className="flex items-center my-4">
                                 <div className="flex-grow border-t border-slate-300 dark:border-slate-600"></div>
@@ -409,15 +443,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 <button 
                                     type="button" 
                                     onClick={handleGoogleLogin}
-                                    className="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                    disabled={isProcessing}
+                                    className="w-full flex justify-center items-center py-2.5 px-4 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60"
                                 >
-                                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" className="mr-2 flex-shrink-0">
-                                        <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4"/>
-                                        <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
-                                        <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29H0.957275C0.347727 8.51727 0 10.035 0 11.29C0 8.70682 0.527273 6.26318 1.42636 4.95818L4.335 7.20636C4.13636 7.74636 4.03364 8.32318 4.03364 8.95C4.03364 8.40682 3.78409 7.83 3.96409 7.29V10.71Z" fill="#FBBC05"/>
-                                        <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
-                                    </svg>
-                                    {t('auth.continueWithGoogle')}
+                                    {isProcessing ? <Loader2 className="animate-spin" /> : (
+                                        <>
+                                            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" className="mr-2 flex-shrink-0">
+                                                <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4"/>
+                                                <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
+                                                <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29H0.957275C0.347727 8.51727 0 10.035 0 11.29C0 8.70682 0.527273 6.26318 1.42636 4.95818L4.335 7.20636C4.13636 7.74636 4.03364 8.32318 4.03364 8.95C4.03364 8.40682 3.78409 7.83 3.96409 7.29V10.71Z" fill="#FBBC05"/>
+                                                <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
+                                            </svg>
+                                            {t('auth.continueWithGoogle')}
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -427,11 +466,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <h4 className="font-semibold border-b dark:border-slate-700 pb-2">{t('profile.profileDetails')}</h4>
                             <div>
                                 <label htmlFor="register-name" className="label-style">{t('auth.fullNameLabel')}</label>
-                                <input id="register-name" name="name" type="text" value={name} onChange={e => setName(e.target.value)} required className="input-style" />
+                                <input id="register-name" name="name" type="text" value={name} onChange={e => setName(e.target.value)} required className="input-style" disabled={isProcessing}/>
                             </div>
                             <div>
                                 <label htmlFor="register-email" className="label-style">{t('auth.emailLabel')}</label>
-                                <input id="register-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
+                                <input id="register-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" disabled={isProcessing}/>
                             </div>
 
                             <div className="relative">
@@ -453,6 +492,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                                 onFocus={() => setInfoPopoverVisible(true)}
                                                 required 
                                                 className="input-style" 
+                                                disabled={isProcessing}
                                             />
                                             <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
                                                 {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
@@ -470,6 +510,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                                 onChange={e => setConfirmPassword(e.target.value)} 
                                                 required 
                                                 className="input-style" 
+                                                disabled={isProcessing}
                                             />
                                             <button type="button" onClick={() => setShowConfirmPassword(p => !p)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500" aria-label={t('auth.togglePasswordVisibility')}>
                                                 {showConfirmPassword ? <EyeOff size={16}/> : <Eye size={16}/>}
@@ -495,7 +536,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="businessType" className="label-style">{t('auth.businessTypeLabel')}</label>
-                                    <select id="businessType" name="businessType" value={businessType} onChange={e => setBusinessType(e.target.value as BusinessType)} className="input-style appearance-none">
+                                    <select id="businessType" name="businessType" value={businessType} onChange={e => setBusinessType(e.target.value as BusinessType)} className="input-style appearance-none" disabled={isProcessing}>
                                         <option value="Company">{t('auth.businessTypeCompany')}</option>
                                         <option value="Individual">{t('auth.businessTypeIndividual')}</option>
                                         <option value="Other">{t('auth.businessTypeOther')}</option>
@@ -503,7 +544,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 </div>
                                 <div>
                                     <label htmlFor="activitySector" className="label-style">{t('auth.activitySectorLabel')}</label>
-                                    <select id="activitySector" name="activitySector" value={activitySector} onChange={e => setActivitySector(e.target.value as ActivitySector)} className="input-style appearance-none">
+                                    <select id="activitySector" name="activitySector" value={activitySector} onChange={e => setActivitySector(e.target.value as ActivitySector)} className="input-style appearance-none" disabled={isProcessing}>
                                         <option value="">-- {t('modals.none')} --</option>
                                         <option value="Individual">{t('auth.activitySectorIndividual')}</option>
                                         <option value="Health">{t('auth.activitySectorHealth')}</option>
@@ -518,11 +559,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             </div>
                              <div>
                                 <label htmlFor="companyName" className="label-style">{t('auth.companyNameLabel')}</label>
-                                <input id="companyName" name="companyName" type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder={t('auth.companyNamePlaceholder')} required className="input-style" />
+                                <input id="companyName" name="companyName" type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder={t('auth.companyNamePlaceholder')} required className="input-style" disabled={isProcessing}/>
                             </div>
                              <div>
                                 <label htmlFor="address" className="label-style">{t('auth.addressLabel')}</label>
-                                <input id="address" name="address" type="text" value={address} onChange={e => setAddress(e.target.value)} className="input-style" />
+                                <input id="address" name="address" type="text" value={address} onChange={e => setAddress(e.target.value)} className="input-style" disabled={isProcessing}/>
                             </div>
 
                             <h4 className="font-semibold border-b dark:border-slate-700 pb-2 pt-2">{t('auth.selectedPlanLabel')}</h4>
@@ -540,8 +581,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                                 </ul>
                             </div>
 
-                            <button type="submit" className={`${buttonPrimaryClasses} mt-4`}>
-                                {plan === 'Gratuit' ? t('auth.createAccountButton') : t('auth.goToPayment')}
+                            <button type="submit" className={`${buttonPrimaryClasses} mt-4`} disabled={isProcessing}>
+                                {isProcessing ? <Loader2 className="animate-spin" /> : (plan === 'Gratuit' ? t('auth.createAccountButton') : t('auth.goToPayment'))}
                             </button>
                         </form>
                     )}
@@ -568,9 +609,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialView = 'l
                             <p className="text-sm text-center text-slate-600 dark:text-slate-400">{t('auth.forgotPasswordInstruction')}</p>
                             <div>
                                 <label htmlFor="forgot-email" className="label-style">{t('auth.emailLabel')}</label>
-                                <input id="forgot-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" />
+                                <input id="forgot-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="input-style" disabled={isProcessing}/>
                             </div>
-                            <button type="submit" className={buttonPrimaryClasses}>{t('auth.sendResetLink')}</button>
+                            <button type="submit" className={buttonPrimaryClasses} disabled={isProcessing}>
+                                {isProcessing ? <Loader2 className="animate-spin" /> : t('auth.sendResetLink')}
+                            </button>
                             <div className="text-center">
                                 <button type="button" onClick={() => setAuthView('login')} className="font-semibold text-blue-600 hover:underline dark:text-blue-400 text-sm">
                                     {t('auth.backToLogin')}

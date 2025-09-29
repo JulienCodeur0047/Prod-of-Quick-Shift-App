@@ -51,6 +51,14 @@
                 '0%': { transform: 'translateY(24px) scale(0.95)', opacity: '0' },
                 '100%': { transform: 'translateY(0) scale(1)', opacity: '1' },
               },
+              'fade-out-backdrop': {
+                '0%': { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+                '100%': { backgroundColor: 'rgba(0, 0, 0, 0)' },
+              },
+              'modal-content-slide-out': {
+                '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+                '100%': { transform: 'translateY(24px) scale(0.95)', opacity: '0' },
+              },
             },
             animation: {
                 'drag-shift': 'drag-shift 5s ease-in-out infinite',
@@ -59,6 +67,8 @@
                 'slide-in-up': 'slide-in-up 0.6s ease-out forwards',
                 'fade-in-backdrop': 'fade-in-backdrop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
                 'modal-content-slide-in': 'modal-content-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                'fade-out-backdrop': 'fade-out-backdrop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                'modal-content-slide-out': 'modal-content-slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
             }
           }
         }

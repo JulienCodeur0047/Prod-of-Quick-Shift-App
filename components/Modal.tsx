@@ -1,6 +1,4 @@
-
-
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -13,7 +11,25 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer, size = 'lg' }) => {
-  if (!isOpen) return null;
+  const [isRendered, setIsRendered] = useState(isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+    } else {
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+      }, 300); // Animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!isRendered) {
+    return null;
+  }
+
+  const backdropAnimation = isOpen ? 'animate-fade-in-backdrop' : 'animate-fade-out-backdrop';
+  const contentAnimation = isOpen ? 'animate-modal-content-slide-in' : 'animate-modal-content-slide-out';
 
   const sizeClasses = {
     md: 'max-w-md',
@@ -27,13 +43,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer,
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex justify-center items-center p-4 animate-fade-in-backdrop backdrop-blur-sm"
+      className={`fixed inset-0 z-50 flex justify-center items-center p-4 backdrop-blur-sm ${backdropAnimation}`}
       onClick={onClose}
       aria-modal="true"
       role="dialog"
     >
       <div 
-        className={`bg-slate-50 dark:bg-slate-900 rounded-2xl shadow-2xl w-full flex flex-col max-h-[90vh] animate-modal-content-slide-in ${sizeClasses[size]}`}
+        className={`bg-slate-50 dark:bg-slate-900 rounded-2xl shadow-2xl w-full flex flex-col max-h-[90vh] ${contentAnimation} ${sizeClasses[size]}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-5 md:p-6 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
